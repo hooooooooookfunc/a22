@@ -9,6 +9,15 @@ local SoundService = game:GetService("SoundService")
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 
+local connections = {}
+local activePopups = {}
+
+local function safeConnect(signal, callback)
+	local conn = signal:Connect(callback)
+	table.insert(connections, conn)
+	return conn
+end
+
 local function addCorner(obj, r)
 	local c = Instance.new("UICorner")
 	c.CornerRadius = UDim.new(0, r or 4)
@@ -123,7 +132,7 @@ function AstralisLib:CreateWindow(config)
 		end)
 	end
 
-	-- Master GUI Container for Menu Elements (Allows absolute shiftlock control)
+	-- Master GUI Container
 	local MainGui = Instance.new("ScreenGui")
 	MainGui.Name = "AstralisMainGui"
 	MainGui.ResetOnSpawn = false
@@ -133,7 +142,7 @@ function AstralisLib:CreateWindow(config)
 	pcall(function() MainGui.Parent = CoreGui end)
 	if not MainGui.Parent then MainGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
-	-- Dedicated GUI for Toggle Buttons (Ensures floating icon stays interactive)
+	-- Dedicated GUI for Toggle Buttons
 	local ToggleGui = Instance.new("ScreenGui")
 	ToggleGui.Name = "AstralisToggleGui"
 	ToggleGui.ResetOnSpawn = false
@@ -153,7 +162,6 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(Frame, Theme.CornerRadius)
 
-	-- Subtle inner gradient for depth
 	local FrameGradient = Instance.new("UIGradient")
 	FrameGradient.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
@@ -192,7 +200,7 @@ function AstralisLib:CreateWindow(config)
 		end
 	end
 
-	MainGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateScale)
+	safeConnect(MainGui:GetPropertyChangedSignal("AbsoluteSize"), updateScale)
 	task.spawn(updateScale)
 
 	local FrameStroke = Instance.new("UIStroke")
@@ -263,7 +271,6 @@ function AstralisLib:CreateWindow(config)
 	HeaderDivider.ZIndex = 5
 	HeaderDivider.Parent = HeaderBar
 
-	-- Left accent bar
 	local AccentBar = Instance.new("Frame")
 	AccentBar.Size = UDim2.new(0, 3, 0, 14)
 	AccentBar.Position = UDim2.new(0, 12, 0.5, -7)
@@ -302,7 +309,7 @@ function AstralisLib:CreateWindow(config)
 	task.defer(function()
 		TitleSub.Position = UDim2.new(0, 22 + TitleLabel.TextBounds.X + 8, 0, 0)
 	end)
-	TitleLabel:GetPropertyChangedSignal("TextBounds"):Connect(function()
+	safeConnect(TitleLabel:GetPropertyChangedSignal("TextBounds"), function()
 		TitleSub.Position = UDim2.new(0, 22 + TitleLabel.TextBounds.X + 8, 0, 0)
 	end)
 
@@ -687,9 +694,31 @@ function AstralisLib:CreateWindow(config)
 		}
 	end
 
-	-- Close: instant destroy, no modal, no confirm
+	local TooltipScreen = Instance.new("ScreenGui")
+	TooltipScreen.Name = "AstralisTooltipGui"
+	TooltipScreen.ResetOnSpawn = false
+	TooltipScreen.DisplayOrder = 2147483649
+	TooltipScreen.IgnoreGuiInset = true
+
+	pcall(function() TooltipScreen.Parent = CoreGui end)
+	if not TooltipScreen.Parent then TooltipScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
 	local function destroyUI()
 		if NotifyScreen then NotifyScreen:Destroy() end
+		if TooltipScreen then TooltipScreen:Destroy() end
+		
+		for _, popupClose in ipairs(activePopups) do
+			pcall(popupClose)
+		end
+		table.clear(activePopups)
+
+		for _, conn in ipairs(connections) do
+			if conn.Connected then
+				conn:Disconnect()
+			end
+		end
+		table.clear(connections)
+
 		task.defer(function()
 			if MainGui then MainGui:Destroy() end
 			if ToggleGui then ToggleGui:Destroy() end
@@ -719,7 +748,7 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	UserInputService.InputChanged:Connect(function(input)
+	safeConnect(UserInputService.InputChanged, function(input)
 		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 			local delta = (input.Position - dragStart) / FrameScale.Scale
 			Frame.Position = UDim2.new(
@@ -728,15 +757,6 @@ function AstralisLib:CreateWindow(config)
 			)
 		end
 	end)
-
-	local TooltipScreen = Instance.new("ScreenGui")
-	TooltipScreen.Name = "AstralisTooltipGui"
-	TooltipScreen.ResetOnSpawn = false
-	TooltipScreen.DisplayOrder = 2147483644
-	TooltipScreen.IgnoreGuiInset = true
-
-	pcall(function() TooltipScreen.Parent = CoreGui end)
-	if not TooltipScreen.Parent then TooltipScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 	local Tooltip = Instance.new("Frame")
 	Tooltip.Size = UDim2.new(0, 0, 0, 26)
@@ -771,15 +791,15 @@ function AstralisLib:CreateWindow(config)
 	local Pages = {}
 	local ActiveTabIndex = 1
 
-	SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+	safeConnect(SearchBox:GetPropertyChangedSignal("Text"), function()
 		local query = string.lower(SearchBox.Text)
 
 		for _, page in ipairs(Pages) do
 			for _, child in ipairs(page:GetChildren()) do
 				if child:IsA("Frame") then
-					local titleLbl = child:FindFirstChildOfClass("TextLabel")
-					if titleLbl then
-						local name = string.lower(titleLbl.Text)
+					local titleObj = child:FindFirstChild("Title")
+					if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
+						local name = string.lower(titleObj.Text)
 						if query == "" then
 							child.Visible = true
 						else
@@ -806,7 +826,6 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	-- Float toggle button parented safely outside MainGui to avoid input locking
 	local FloatingBtn = Instance.new("ImageButton")
 	FloatingBtn.Name = "AstralisToggleBtn"
 	FloatingBtn.Size = UDim2.new(0, 44, 0, 44)
@@ -843,7 +862,7 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	UserInputService.InputChanged:Connect(function(input)
+	safeConnect(UserInputService.InputChanged, function(input)
 		if fDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 			local delta = input.Position - fDragStart
 			dragDistance = delta.Magnitude
@@ -876,7 +895,7 @@ function AstralisLib:CreateWindow(config)
 		}):Play()
 	end)
 
-	UserInputService.InputBegan:Connect(function(input)
+	safeConnect(UserInputService.InputBegan, function(input)
 		if UserInputService:GetFocusedTextBox() then return end
 		if input.KeyCode == Theme.Keybind then
 			toggleUI()
@@ -907,7 +926,6 @@ function AstralisLib:CreateWindow(config)
 		noSelect(TabBtn)
 		addCorner(TabBtn, 8)
 
-		-- Active left accent indicator
 		local TabIndicator = Instance.new("Frame")
 		TabIndicator.Size = UDim2.new(0, 3, 0, 0)
 		TabIndicator.Position = UDim2.new(0, -6, 0.5, 0)
@@ -938,8 +956,10 @@ function AstralisLib:CreateWindow(config)
 		Page.Size = UDim2.new(1, 0, 1, 0)
 		Page.BackgroundTransparency = 1
 		Page.BorderSizePixel = 0
-		Page.ScrollBarThickness = 5
-		Page.ScrollBarImageColor3 = Theme.ButtonBackground
+		Page.ScrollBarThickness = 4
+		Page.ScrollBarImageColor3 = Theme.OutlineColor
+		Page.ScrollBarImageTransparency = 0.4
+		Page.CanvasSize = UDim2.new(0, 0, 0, 0)
 		Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
 		Page.Visible = false
 		Page.ZIndex = 2
@@ -963,6 +983,11 @@ function AstralisLib:CreateWindow(config)
 		local function selectTab()
 			playSound()
 			ActiveTabIndex = tabIndex
+
+			for _, closePopup in ipairs(activePopups) do
+				pcall(closePopup)
+			end
+			table.clear(activePopups)
 
 			for idx, page in ipairs(Pages) do
 				local active = (idx == tabIndex)
@@ -1038,6 +1063,7 @@ function AstralisLib:CreateWindow(config)
 			Holder.Parent = Page
 
 			local Label = Instance.new("TextLabel")
+			Label.Name = "Title"
 			Label.Size = UDim2.new(1, 0, 1, 0)
 			Label.BackgroundTransparency = 1
 			Label.Text = string.upper(text or "SECTION")
@@ -1046,6 +1072,7 @@ function AstralisLib:CreateWindow(config)
 			Label.TextColor3 = Theme.DescriptionColor
 			Label.TextXAlignment = Enum.TextXAlignment.Left
 			Label.TextYAlignment = Enum.TextYAlignment.Center
+			Label.TextTruncate = Enum.TextTruncate.AtEnd
 			Label.ZIndex = 4
 			Label.Parent = Holder
 		end
@@ -1064,6 +1091,7 @@ function AstralisLib:CreateWindow(config)
 			Holder.Parent = Page
 
 			local TitleLbl = Instance.new("TextLabel")
+			TitleLbl.Name = "Title"
 			TitleLbl.Size = UDim2.new(0, 0, 0, 18)
 			TitleLbl.Position = UDim2.new(0, 0, 0, 2)
 			TitleLbl.AutomaticSize = Enum.AutomaticSize.X
@@ -1074,6 +1102,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
+			TitleLbl.TextTruncate = Enum.TextTruncate.AtEnd
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
@@ -1088,6 +1117,7 @@ function AstralisLib:CreateWindow(config)
 				DescLbl.TextColor3 = Theme.DescriptionColor
 				DescLbl.TextXAlignment = Enum.TextXAlignment.Left
 				DescLbl.TextYAlignment = Enum.TextYAlignment.Center
+				DescLbl.TextTruncate = Enum.TextTruncate.AtEnd
 				DescLbl.ZIndex = 4
 				DescLbl.Parent = Holder
 			end
@@ -1153,6 +1183,8 @@ function AstralisLib:CreateWindow(config)
 			local name = options.Name or "Slider"
 			local min = options.Min or 0
 			local max = options.Max or 100
+			local step = options.Step or 1
+			local decimals = options.Decimals or 0
 			local default = options.Default or min
 			local callback = options.Callback or function() end
 
@@ -1163,6 +1195,7 @@ function AstralisLib:CreateWindow(config)
 			Holder.Parent = Page
 
 			local TitleLbl = Instance.new("TextLabel")
+			TitleLbl.Name = "Title"
 			TitleLbl.Size = UDim2.new(1, -215, 1, 0)
 			TitleLbl.Position = UDim2.new(0, 0, 0, 0)
 			TitleLbl.BackgroundTransparency = 1
@@ -1172,6 +1205,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
+			TitleLbl.TextTruncate = Enum.TextTruncate.AtEnd
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
@@ -1242,7 +1276,11 @@ function AstralisLib:CreateWindow(config)
 
 			local function update(input)
 				local x = math.clamp((input.Position.X - Track.AbsolutePosition.X) / Track.AbsoluteSize.X, 0, 1)
-				local val = math.floor(min + (max - min) * x)
+				local rawVal = min + (max - min) * x
+				local steppedVal = math.round(rawVal / step) * step
+				local val = math.clamp(steppedVal, min, max)
+				
+				val = tonumber(string.format("%." .. decimals .. "f", val))
 				Fill.Size = UDim2.new(x, 0, 1, 0)
 				ValLbl.Text = tostring(val)
 				callback(val)
@@ -1255,13 +1293,13 @@ function AstralisLib:CreateWindow(config)
 				end
 			end)
 
-			UserInputService.InputEnded:Connect(function(input)
+			safeConnect(UserInputService.InputEnded, function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 					sliding = false
 				end
 			end)
 
-			UserInputService.InputChanged:Connect(function(input)
+			safeConnect(UserInputService.InputChanged, function(input)
 				if sliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 					update(input)
 				end
@@ -1296,6 +1334,7 @@ function AstralisLib:CreateWindow(config)
 			Holder.Parent = Page
 
 			local Btn = Instance.new("TextButton")
+			Btn.Name = "Title"
 			Btn.Size = UDim2.new(0, 160, 0, 26)
 			Btn.BackgroundColor3 = Theme.ButtonBackground
 			Btn.BorderSizePixel = 0
@@ -1323,6 +1362,7 @@ function AstralisLib:CreateWindow(config)
 				Desc.TextColor3 = Theme.DescriptionColor
 				Desc.TextXAlignment = Enum.TextXAlignment.Left
 				Desc.TextYAlignment = Enum.TextYAlignment.Center
+				Desc.TextTruncate = Enum.TextTruncate.AtEnd
 				Desc.ZIndex = 4
 				Desc.Parent = Holder
 			end
@@ -1371,6 +1411,7 @@ function AstralisLib:CreateWindow(config)
 			Holder.Parent = Page
 
 			local TitleLbl = Instance.new("TextLabel")
+			TitleLbl.Name = "Title"
 			TitleLbl.Size = UDim2.new(1, -160, 1, 0)
 			TitleLbl.BackgroundTransparency = 1
 			TitleLbl.Text = name
@@ -1379,6 +1420,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
+			TitleLbl.TextTruncate = Enum.TextTruncate.AtEnd
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
@@ -1450,6 +1492,7 @@ function AstralisLib:CreateWindow(config)
 			Holder.Parent = Page
 
 			local TitleLbl = Instance.new("TextLabel")
+			TitleLbl.Name = "Title"
 			TitleLbl.Size = UDim2.new(1, -160, 1, 0)
 			TitleLbl.BackgroundTransparency = 1
 			TitleLbl.Text = name
@@ -1458,6 +1501,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
+			TitleLbl.TextTruncate = Enum.TextTruncate.AtEnd
 			TitleLbl.Parent = Holder
 
 			local Box = Instance.new("TextBox")
@@ -1499,6 +1543,7 @@ function AstralisLib:CreateWindow(config)
 			Holder.Parent = Page
 
 			local TitleLbl = Instance.new("TextLabel")
+			TitleLbl.Name = "Title"
 			TitleLbl.Size = UDim2.new(1, -70, 0, 18)
 			TitleLbl.Position = UDim2.new(0, 0, 0, 2)
 			TitleLbl.BackgroundTransparency = 1
@@ -1508,6 +1553,7 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
+			TitleLbl.TextTruncate = Enum.TextTruncate.AtEnd
 			TitleLbl.ZIndex = 4
 			TitleLbl.Parent = Holder
 
@@ -1522,6 +1568,7 @@ function AstralisLib:CreateWindow(config)
 				DescLbl.TextColor3 = Theme.DescriptionColor
 				DescLbl.TextXAlignment = Enum.TextXAlignment.Left
 				DescLbl.TextYAlignment = Enum.TextYAlignment.Center
+				DescLbl.TextTruncate = Enum.TextTruncate.AtEnd
 				DescLbl.ZIndex = 4
 				DescLbl.Parent = Holder
 			end
@@ -1545,15 +1592,14 @@ function AstralisLib:CreateWindow(config)
 			PreviewStroke.Thickness = 1
 			PreviewStroke.Parent = Preview
 
+			-- Popup mounted directly into ContentArea to fully bypass Scroll View clipping
 			local Popup = Instance.new("Frame")
 			Popup.Size = UDim2.new(0, 220, 0, 238)
-			Popup.AnchorPoint = Vector2.new(1, 0)
-			Popup.Position = UDim2.new(1, 0, 1, 6)
 			Popup.BackgroundColor3 = Theme.BackgroundColor
 			Popup.BorderSizePixel = 0
 			Popup.Visible = false
-			Popup.ZIndex = 20
-			Popup.Parent = Holder
+			Popup.ZIndex = 500
+			Popup.Parent = ContentArea
 
 			addCorner(Popup, 7)
 
@@ -1573,7 +1619,7 @@ function AstralisLib:CreateWindow(config)
 			SV.Size = UDim2.new(1, 0, 0, 150)
 			SV.BackgroundColor3 = Color3.fromHSV(0, 1, 1)
 			SV.BorderSizePixel = 0
-			SV.ZIndex = 21
+			SV.ZIndex = 501
 			SV.Parent = Popup
 
 			addCorner(SV, 5)
@@ -1582,7 +1628,7 @@ function AstralisLib:CreateWindow(config)
 			SVWhite.Size = UDim2.new(1, 0, 1, 0)
 			SVWhite.BackgroundColor3 = Color3.new(1, 1, 1)
 			SVWhite.BorderSizePixel = 0
-			SVWhite.ZIndex = 22
+			SVWhite.ZIndex = 502
 			SVWhite.Parent = SV
 
 			local WhiteGradient = Instance.new("UIGradient")
@@ -1597,7 +1643,7 @@ function AstralisLib:CreateWindow(config)
 			SVBlack.Size = UDim2.new(1, 0, 1, 0)
 			SVBlack.BackgroundColor3 = Color3.new(0, 0, 0)
 			SVBlack.BorderSizePixel = 0
-			SVBlack.ZIndex = 23
+			SVBlack.ZIndex = 503
 			SVBlack.Parent = SV
 
 			local BlackGradient = Instance.new("UIGradient")
@@ -1613,7 +1659,7 @@ function AstralisLib:CreateWindow(config)
 			SVMarker.AnchorPoint = Vector2.new(0.5, 0.5)
 			SVMarker.BackgroundColor3 = Color3.new(1, 1, 1)
 			SVMarker.BorderSizePixel = 0
-			SVMarker.ZIndex = 24
+			SVMarker.ZIndex = 504
 			SVMarker.Parent = SV
 
 			addCorner(SVMarker, 5)
@@ -1628,7 +1674,7 @@ function AstralisLib:CreateWindow(config)
 			Hue.Position = UDim2.new(0, 0, 0, 158)
 			Hue.BackgroundColor3 = Color3.new(1, 1, 1)
 			Hue.BorderSizePixel = 0
-			Hue.ZIndex = 21
+			Hue.ZIndex = 501
 			Hue.Parent = Popup
 
 			addCorner(Hue, 4)
@@ -1650,7 +1696,7 @@ function AstralisLib:CreateWindow(config)
 			HueMarker.AnchorPoint = Vector2.new(0.5, 0.5)
 			HueMarker.BackgroundColor3 = Color3.new(1, 1, 1)
 			HueMarker.BorderSizePixel = 0
-			HueMarker.ZIndex = 22
+			HueMarker.ZIndex = 502
 			HueMarker.Parent = Hue
 
 			addCorner(HueMarker, 2)
@@ -1669,7 +1715,7 @@ function AstralisLib:CreateWindow(config)
 			HexBox.TextXAlignment = Enum.TextXAlignment.Left
 			HexBox.TextYAlignment = Enum.TextYAlignment.Center
 			HexBox.ClearTextOnFocus = false
-			HexBox.ZIndex = 21
+			HexBox.ZIndex = 501
 			HexBox.Parent = Popup
 
 			addCorner(HexBox, 4)
@@ -1690,13 +1736,30 @@ function AstralisLib:CreateWindow(config)
 			ResetBtn.TextXAlignment = Enum.TextXAlignment.Center
 			ResetBtn.TextYAlignment = Enum.TextYAlignment.Center
 			ResetBtn.AutoButtonColor = false
-			ResetBtn.ZIndex = 21
+			ResetBtn.ZIndex = 501
 			ResetBtn.Parent = Popup
 
 			addCorner(ResetBtn, 4)
 			noSelect(ResetBtn)
 
 			local hue, saturation, value = Color3.toHSV(currentColor)
+
+			local function updatePopupPos()
+				if not Popup.Visible then return end
+				local relativeX = Preview.AbsolutePosition.X - ContentArea.AbsolutePosition.X
+				local relativeY = Preview.AbsolutePosition.Y - ContentArea.AbsolutePosition.Y
+				local scale = FrameScale.Scale
+
+				local unscaledX = relativeX / scale
+				local unscaledY = relativeY / scale
+				local previewSizeX = Preview.AbsoluteSize.X / scale
+				local previewSizeY = Preview.AbsoluteSize.Y / scale
+
+				Popup.Position = UDim2.new(
+					0, unscaledX + previewSizeX - Popup.Size.X.Offset,
+					0, unscaledY + previewSizeY + 6
+				)
+			end
 
 			local function setColor(color, fireCallback)
 				color = color or currentColor
@@ -1746,7 +1809,7 @@ function AstralisLib:CreateWindow(config)
 				end
 			end)
 
-			UserInputService.InputChanged:Connect(function(input)
+			safeConnect(UserInputService.InputChanged, function(input)
 				if svDragging and (
 					input.UserInputType == Enum.UserInputType.MouseMovement
 					or input.UserInputType == Enum.UserInputType.Touch
@@ -1760,7 +1823,7 @@ function AstralisLib:CreateWindow(config)
 				end
 			end)
 
-			UserInputService.InputEnded:Connect(function(input)
+			safeConnect(UserInputService.InputEnded, function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1
 					or input.UserInputType == Enum.UserInputType.Touch then
 					svDragging = false
@@ -1793,12 +1856,20 @@ function AstralisLib:CreateWindow(config)
 
 				if state then
 					setColor(currentColor, false)
+					updatePopupPos()
 				end
 			end
 
 			Preview.MouseButton1Click:Connect(function()
 				playSound()
 				setOpen(not pickerOpen)
+			end)
+
+			safeConnect(Page:GetPropertyChangedSignal("CanvasPosition"), updatePopupPos)
+			safeConnect(MainGui:GetPropertyChangedSignal("AbsoluteSize"), updatePopupPos)
+
+			table.insert(activePopups, function()
+				setOpen(false)
 			end)
 
 			setColor(currentColor, false)
@@ -1828,7 +1899,6 @@ function AstralisLib:CreateWindow(config)
 		return createNotify(opts)
 	end
 
-	-- Initialize default lock visibility safely
 	setUIShowing(true)
 
 	return WindowObj
