@@ -1113,14 +1113,27 @@ function AstralisLib:CreateWindow(config)
 			local desc = options.Description or ""
 			local default = options.Default or Theme.AccentColor
 			local callback = options.Callback or function() end
+			local presets = options.Presets or {
+				Color3.fromRGB(255, 80, 80),
+				Color3.fromRGB(255, 180, 60),
+				Color3.fromRGB(240, 220, 60),
+				Color3.fromRGB(80, 220, 120),
+				Color3.fromRGB(80, 180, 255),
+				Color3.fromRGB(160, 100, 255),
+				Color3.fromRGB(255, 255, 255),
+				Color3.fromRGB(40, 40, 44),
+			}
+
 			local currentColor = default
 			local pickerOpen = false
 
-			local Holder = makeHolder(desc ~= "" and 44 or 30)
+			local Holder = makeHolder(desc ~= "" and 46 or 32)
 			Holder.ClipsDescendants = false
+			Holder.ZIndex = 6
 
+			-- Title
 			local TitleLbl = Instance.new("TextLabel")
-			TitleLbl.Size = UDim2.new(1, -60, 0, 18)
+			TitleLbl.Size = UDim2.new(1, -80, 0, 18)
 			TitleLbl.Position = UDim2.new(0, 0, 0, 2)
 			TitleLbl.BackgroundTransparency = 1
 			TitleLbl.Text = name
@@ -1129,12 +1142,12 @@ function AstralisLib:CreateWindow(config)
 			TitleLbl.TextColor3 = Theme.TextColor
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
-			TitleLbl.ZIndex = 5
+			TitleLbl.ZIndex = 7
 			TitleLbl.Parent = Holder
 
 			if desc ~= "" then
 				local DescLbl = Instance.new("TextLabel")
-				DescLbl.Size = UDim2.new(1, -60, 0, 14)
+				DescLbl.Size = UDim2.new(1, -80, 0, 14)
 				DescLbl.Position = UDim2.new(0, 0, 0, 22)
 				DescLbl.BackgroundTransparency = 1
 				DescLbl.Text = desc
@@ -1143,75 +1156,131 @@ function AstralisLib:CreateWindow(config)
 				DescLbl.TextColor3 = Theme.DescriptionColor
 				DescLbl.TextXAlignment = Enum.TextXAlignment.Left
 				DescLbl.TextYAlignment = Enum.TextYAlignment.Center
-				DescLbl.ZIndex = 5
+				DescLbl.ZIndex = 7
 				DescLbl.Parent = Holder
 			end
 
+			-- Preview button
 			local Preview = Instance.new("TextButton")
-			Preview.Size = UDim2.new(0, 34, 0, 24)
+			Preview.Size = UDim2.new(0, 48, 0, 26)
 			Preview.AnchorPoint = Vector2.new(1, 0.5)
 			Preview.Position = UDim2.new(1, 0, 0.5, 0)
 			Preview.BackgroundColor3 = currentColor
 			Preview.BorderSizePixel = 0
 			Preview.Text = ""
 			Preview.AutoButtonColor = false
-			Preview.ZIndex = 6
+			Preview.ZIndex = 7
 			Preview.Parent = Holder
-			addCorner(Preview, 6)
+			addCorner(Preview, 7)
 			noSelect(Preview)
 
 			local PreviewStroke = Instance.new("UIStroke")
-			PreviewStroke.Color = Color3.fromRGB(60, 60, 66)
+			PreviewStroke.Color = Color3.fromRGB(70, 70, 76)
 			PreviewStroke.Thickness = 1
 			PreviewStroke.Parent = Preview
 
-			-- Popup container (also acts as shadow holder)
-			local PopupHolder = Instance.new("Frame")
-			PopupHolder.Size = UDim2.new(0, 240, 0, 0)
-			PopupHolder.AnchorPoint = Vector2.new(1, 0)
-			PopupHolder.Position = UDim2.new(1, 0, 1, 8)
-			PopupHolder.BackgroundTransparency = 1
-			PopupHolder.Visible = false
-			PopupHolder.ZIndex = 50
-			PopupHolder.Parent = Holder
+			-- Popup in its own ScreenGui so it escapes scroll frames
+			local PopupGui = Instance.new("ScreenGui")
+			PopupGui.Name = "AstralisColorPicker"
+			PopupGui.ResetOnSpawn = false
+			PopupGui.DisplayOrder = 2147483643
+			PopupGui.IgnoreGuiInset = true
+			PopupGui.Enabled = false
+
+			pcall(function() PopupGui.Parent = CoreGui end)
+			if not PopupGui.Parent then PopupGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+			local Shadow = Instance.new("ImageLabel")
+			Shadow.Size = UDim2.new(0, 272, 0, 300)
+			Shadow.BackgroundTransparency = 1
+			Shadow.Image = "rbxassetid://5028857084"
+			Shadow.ImageColor3 = Color3.new(0, 0, 0)
+			Shadow.ImageTransparency = 0.5
+			Shadow.ScaleType = Enum.ScaleType.Slice
+			Shadow.SliceCenter = Rect.new(24, 24, 276, 276)
+			Shadow.ZIndex = 1
+			Shadow.Parent = PopupGui
 
 			local Popup = Instance.new("Frame")
-			Popup.Size = UDim2.new(1, 0, 1, 0)
-			Popup.BackgroundColor3 = Theme.BackgroundColor
+			Popup.Size = UDim2.new(1, -16, 1, -16)
+			Popup.Position = UDim2.new(0, 8, 0, 8)
+			Popup.BackgroundColor3 = Color3.fromRGB(24, 24, 27)
 			Popup.BorderSizePixel = 0
-			Popup.ClipsDescendants = true
-			Popup.ZIndex = 51
-			Popup.Parent = PopupHolder
-			addCorner(Popup, 8)
+			Popup.ZIndex = 2
+			Popup.Parent = Shadow
+			addCorner(Popup, 10)
 
 			local PopupStroke = Instance.new("UIStroke")
-			PopupStroke.Color = Theme.OutlineColor
+			PopupStroke.Color = Color3.fromRGB(60, 60, 66)
 			PopupStroke.Thickness = 1
 			PopupStroke.Parent = Popup
 
-			local Content = Instance.new("Frame")
-			Content.Size = UDim2.new(1, -20, 1, -20)
-			Content.Position = UDim2.new(0, 10, 0, 10)
-			Content.BackgroundTransparency = 1
-			Content.ZIndex = 52
-			Content.Parent = Popup
+			local PopHeader = Instance.new("Frame")
+			PopHeader.Size = UDim2.new(1, 0, 0, 32)
+			PopHeader.BackgroundTransparency = 1
+			PopHeader.ZIndex = 3
+			PopHeader.Parent = Popup
 
-			-- SV Area
+			local PopTitle = Instance.new("TextLabel")
+			PopTitle.Size = UDim2.new(1, -40, 1, 0)
+			PopTitle.Position = UDim2.new(0, 14, 0, 0)
+			PopTitle.BackgroundTransparency = 1
+			PopTitle.Text = name
+			PopTitle.Font = Theme.TitleFont
+			PopTitle.TextSize = 12
+			PopTitle.TextColor3 = Color3.fromRGB(220, 220, 225)
+			PopTitle.TextXAlignment = Enum.TextXAlignment.Left
+			PopTitle.TextYAlignment = Enum.TextYAlignment.Center
+			PopTitle.ZIndex = 4
+			PopTitle.Parent = PopHeader
+
+			local PopClose = Instance.new("TextButton")
+			PopClose.Size = UDim2.new(0, 24, 0, 24)
+			PopClose.Position = UDim2.new(1, -30, 0.5, -12)
+			PopClose.BackgroundTransparency = 1
+			PopClose.Text = "✕"
+			PopClose.Font = Enum.Font.GothamBold
+			PopClose.TextSize = 13
+			PopClose.TextColor3 = Theme.DescriptionColor
+			PopClose.AutoButtonColor = false
+			PopClose.ZIndex = 4
+			PopClose.Parent = PopHeader
+			noSelect(PopClose)
+
+			PopClose.MouseEnter:Connect(function()
+				TweenService:Create(PopClose, TweenInfo.new(0.12), {
+					TextColor3 = Color3.fromRGB(240, 70, 70)
+				}):Play()
+			end)
+			PopClose.MouseLeave:Connect(function()
+				TweenService:Create(PopClose, TweenInfo.new(0.12), {
+					TextColor3 = Theme.DescriptionColor
+				}):Play()
+			end)
+
+			local ContentFrame = Instance.new("Frame")
+			ContentFrame.Size = UDim2.new(1, -24, 1, -44)
+			ContentFrame.Position = UDim2.new(0, 12, 0, 36)
+			ContentFrame.BackgroundTransparency = 1
+			ContentFrame.ZIndex = 3
+			ContentFrame.Parent = Popup
+
+			-- SV area
 			local SV = Instance.new("Frame")
-			SV.Size = UDim2.new(1, 0, 0, 130)
+			SV.Size = UDim2.new(1, 0, 0, 150)
 			SV.BackgroundColor3 = Color3.fromHSV(0, 1, 1)
 			SV.BorderSizePixel = 0
-			SV.ZIndex = 52
-			SV.Parent = Content
-			addCorner(SV, 5)
+			SV.ZIndex = 4
+			SV.Parent = ContentFrame
+			addCorner(SV, 6)
 
 			local SVWhite = Instance.new("Frame")
 			SVWhite.Size = UDim2.new(1, 0, 1, 0)
 			SVWhite.BackgroundColor3 = Color3.new(1, 1, 1)
 			SVWhite.BorderSizePixel = 0
-			SVWhite.ZIndex = 53
+			SVWhite.ZIndex = 5
 			SVWhite.Parent = SV
-			addCorner(SVWhite, 5)
+			addCorner(SVWhite, 6)
 
 			local WG = Instance.new("UIGradient")
 			WG.Transparency = NumberSequence.new({
@@ -1224,9 +1293,9 @@ function AstralisLib:CreateWindow(config)
 			SVBlack.Size = UDim2.new(1, 0, 1, 0)
 			SVBlack.BackgroundColor3 = Color3.new(0, 0, 0)
 			SVBlack.BorderSizePixel = 0
-			SVBlack.ZIndex = 54
+			SVBlack.ZIndex = 6
 			SVBlack.Parent = SV
-			addCorner(SVBlack, 5)
+			addCorner(SVBlack, 6)
 
 			local BG = Instance.new("UIGradient")
 			BG.Transparency = NumberSequence.new({
@@ -1237,10 +1306,10 @@ function AstralisLib:CreateWindow(config)
 			BG.Parent = SVBlack
 
 			local SVMarker = Instance.new("Frame")
-			SVMarker.Size = UDim2.new(0, 12, 0, 12)
+			SVMarker.Size = UDim2.new(0, 14, 0, 14)
 			SVMarker.AnchorPoint = Vector2.new(0.5, 0.5)
 			SVMarker.BackgroundTransparency = 1
-			SVMarker.ZIndex = 56
+			SVMarker.ZIndex = 8
 			SVMarker.Parent = SV
 
 			local SVMarkerOuter = Instance.new("UIStroke")
@@ -1251,16 +1320,17 @@ function AstralisLib:CreateWindow(config)
 			local SVMarkerInner = Instance.new("UIStroke")
 			SVMarkerInner.Color = Color3.new(0, 0, 0)
 			SVMarkerInner.Thickness = 1
+			SVMarkerInner.Transparency = 0.5
 			SVMarkerInner.Parent = SVMarker
 
 			-- Hue slider
 			local Hue = Instance.new("Frame")
 			Hue.Size = UDim2.new(1, 0, 0, 14)
-			Hue.Position = UDim2.new(0, 0, 0, 140)
+			Hue.Position = UDim2.new(0, 0, 0, 158)
 			Hue.BackgroundColor3 = Color3.new(1, 1, 1)
 			Hue.BorderSizePixel = 0
-			Hue.ZIndex = 52
-			Hue.Parent = Content
+			Hue.ZIndex = 4
+			Hue.Parent = ContentFrame
 			addCorner(Hue, 7)
 
 			local HG = Instance.new("UIGradient")
@@ -1276,53 +1346,72 @@ function AstralisLib:CreateWindow(config)
 			HG.Parent = Hue
 
 			local HueMarker = Instance.new("Frame")
-			HueMarker.Size = UDim2.new(0, 4, 1, 4)
+			HueMarker.Size = UDim2.new(0, 6, 1, 4)
 			HueMarker.AnchorPoint = Vector2.new(0.5, 0.5)
 			HueMarker.Position = UDim2.new(0, 0.5, 0)
 			HueMarker.BackgroundColor3 = Color3.new(1, 1, 1)
 			HueMarker.BorderSizePixel = 0
-			HueMarker.ZIndex = 54
+			HueMarker.ZIndex = 6
 			HueMarker.Parent = Hue
-			addCorner(HueMarker, 2)
+			addCorner(HueMarker, 3)
 
 			local HueStroke = Instance.new("UIStroke")
 			HueStroke.Color = Color3.new(0, 0, 0)
 			HueStroke.Thickness = 1
+			HueStroke.Transparency = 0.4
 			HueStroke.Parent = HueMarker
 
-			-- Hex input
+			-- Hex + RGB readout
+			local ReadoutHolder = Instance.new("Frame")
+			ReadoutHolder.Size = UDim2.new(1, 0, 0, 28)
+			ReadoutHolder.Position = UDim2.new(0, 0, 0, 180)
+			ReadoutHolder.BackgroundTransparency = 1
+			ReadoutHolder.ZIndex = 4
+			ReadoutHolder.Parent = ContentFrame
+
 			local HexBox = Instance.new("TextBox")
-			HexBox.Size = UDim2.new(1, -70, 0, 26)
-			HexBox.Position = UDim2.new(0, 0, 0, 162)
-			HexBox.BackgroundColor3 = Theme.ButtonBackground
+			HexBox.Size = UDim2.new(0, 90, 1, 0)
+			HexBox.BackgroundColor3 = Color3.fromRGB(34, 34, 38)
 			HexBox.BorderSizePixel = 0
 			HexBox.Text = "#" .. currentColor:ToHex()
-			HexBox.PlaceholderText = "#RRGGBB"
-			HexBox.PlaceholderColor3 = Theme.DescriptionColor
-			HexBox.Font = Theme.Font
+			HexBox.Font = Enum.Font.Code
 			HexBox.TextSize = 12
-			HexBox.TextColor3 = Theme.TextColor
+			HexBox.TextColor3 = Color3.fromRGB(220, 220, 225)
 			HexBox.TextXAlignment = Enum.TextXAlignment.Center
 			HexBox.TextYAlignment = Enum.TextYAlignment.Center
 			HexBox.ClearTextOnFocus = false
-			HexBox.ZIndex = 52
-			HexBox.Parent = Content
-			addCorner(HexBox, 4)
+			HexBox.ZIndex = 5
+			HexBox.Parent = ReadoutHolder
+			addCorner(HexBox, 5)
 
-			local ResetBtn = Instance.new("TextButton")
-			ResetBtn.Size = UDim2.new(0, 62, 0, 26)
-			ResetBtn.Position = UDim2.new(1, -62, 0, 162)
-			ResetBtn.BackgroundColor3 = Theme.ButtonBackground
-			ResetBtn.BorderSizePixel = 0
-			ResetBtn.Text = "Reset"
-			ResetBtn.Font = Theme.Font
-			ResetBtn.TextSize = 12
-			ResetBtn.TextColor3 = Theme.ButtonTextColor
-			ResetBtn.AutoButtonColor = false
-			ResetBtn.ZIndex = 52
-			ResetBtn.Parent = Content
-			addCorner(ResetBtn, 4)
-			noSelect(ResetBtn)
+			local RgbLbl = Instance.new("TextLabel")
+			RgbLbl.Size = UDim2.new(1, -98, 1, 0)
+			RgbLbl.Position = UDim2.new(0, 98, 0, 0)
+			RgbLbl.BackgroundTransparency = 1
+			RgbLbl.Text = "255, 255, 255"
+			RgbLbl.Font = Enum.Font.Code
+			RgbLbl.TextSize = 11
+			RgbLbl.TextColor3 = Theme.DescriptionColor
+			RgbLbl.TextXAlignment = Enum.TextXAlignment.Right
+			RgbLbl.TextYAlignment = Enum.TextYAlignment.Center
+			RgbLbl.ZIndex = 5
+			RgbLbl.Parent = ReadoutHolder
+
+			-- Presets
+			local PresetRow = Instance.new("Frame")
+			PresetRow.Size = UDim2.new(1, 0, 0, 24)
+			PresetRow.Position = UDim2.new(0, 0, 0, 214)
+			PresetRow.BackgroundTransparency = 1
+			PresetRow.ZIndex = 4
+			PresetRow.Parent = ContentFrame
+
+			local PresetLayout = Instance.new("UIListLayout")
+			PresetLayout.FillDirection = Enum.FillDirection.Horizontal
+			PresetLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			PresetLayout.Padding = UDim.new(0, 4)
+			PresetLayout.Parent = PresetRow
+
+			local presetButtons = {}
 
 			local hue, saturation, value = Color3.toHSV(currentColor)
 
@@ -1335,8 +1424,51 @@ function AstralisLib:CreateWindow(config)
 				SVMarker.Position = UDim2.new(saturation, 0, 1 - value, 0)
 				HueMarker.Position = UDim2.new(hue, 0.5, 0)
 				HexBox.Text = "#" .. currentColor:ToHex()
+				local r = math.floor(currentColor.R * 255 + 0.5)
+				local g = math.floor(currentColor.G * 255 + 0.5)
+				local b = math.floor(currentColor.B * 255 + 0.5)
+				RgbLbl.Text = string.format("%d, %d, %d", r, g, b)
+
+				for _, pb in ipairs(presetButtons) do
+					local match = math.abs(pb.color.R - currentColor.R) < 0.01
+						and math.abs(pb.color.G - currentColor.G) < 0.01
+						and math.abs(pb.color.B - currentColor.B) < 0.01
+					pb.stroke.Transparency = match and 0 or 0.6
+					pb.stroke.Thickness = match and 2 or 1
+				end
+
 				if fireCallback then callback(currentColor) end
 			end
+
+			for i, presetColor in ipairs(presets) do
+				local Swatch = Instance.new("TextButton")
+				Swatch.Size = UDim2.new(0, 22, 0, 22)
+				Swatch.BackgroundColor3 = presetColor
+				Swatch.BorderSizePixel = 0
+				Swatch.Text = ""
+				Swatch.AutoButtonColor = false
+				Swatch.LayoutOrder = i
+				Swatch.ZIndex = 5
+				Swatch.Parent = PresetRow
+				addCorner(Swatch, 5)
+				noSelect(Swatch)
+
+				local SwatchStroke = Instance.new("UIStroke")
+				SwatchStroke.Color = Color3.new(1, 1, 1)
+				SwatchStroke.Thickness = 1
+				SwatchStroke.Transparency = 0.6
+				SwatchStroke.Parent = Swatch
+
+				table.insert(presetButtons, { btn = Swatch, stroke = SwatchStroke, color = presetColor })
+
+				Swatch.MouseButton1Click:Connect(function()
+					playSound()
+					setColor(presetColor, true)
+				end)
+			end
+
+			local svDragging = false
+			local hueDragging = false
 
 			local function updateFromSV(input)
 				local x = math.clamp((input.Position.X - SV.AbsolutePosition.X) / SV.AbsoluteSize.X, 0, 1)
@@ -1352,16 +1484,12 @@ function AstralisLib:CreateWindow(config)
 				setColor(Color3.fromHSV(hue, saturation, value), true)
 			end
 
-			local svDragging = false
-			local hueDragging = false
-
 			SV.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 					svDragging = true
 					updateFromSV(input)
 				end
 			end)
-
 			Hue.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 					hueDragging = true
@@ -1398,27 +1526,69 @@ function AstralisLib:CreateWindow(config)
 				HexBox.Text = "#" .. currentColor:ToHex()
 			end)
 
-			ResetBtn.MouseButton1Click:Connect(function()
-				playSound()
-				setColor(default, true)
+			-- Dragging popup
+			local dragging = false
+			local dragStart, startPos
+
+			PopHeader.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+					dragging = true
+					dragStart = input.Position
+					startPos = Shadow.Position
+				end
+			end)
+
+			PopHeader.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+					dragging = false
+				end
+			end)
+
+			UserInputService.InputChanged:Connect(function(input)
+				if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+					local delta = input.Position - dragStart
+					Shadow.Position = UDim2.new(
+						startPos.X.Scale, startPos.X.Offset + delta.X,
+						startPos.Y.Scale, startPos.Y.Offset + delta.Y
+					)
+				end
 			end)
 
 			local function setOpen(state)
 				pickerOpen = state
 				if state then
-					PopupHolder.Visible = true
-					PopupHolder.Size = UDim2.new(0, 240, 0, 0)
-					TweenService:Create(PopupHolder, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 240, 0, 198)
+					local abs = Preview.AbsolutePosition
+					local absSize = Preview.AbsoluteSize
+					local vp = PopupGui.AbsoluteSize
+
+					local popupW, popupH = 272, 300
+					local x = abs.X - popupW + absSize.X
+					local y = abs.Y + absSize.Y + 6
+
+					if x < 8 then x = 8 end
+					if x + popupW > vp.X - 8 then x = vp.X - popupW - 8 end
+					if y + popupH > vp.Y - 8 then y = abs.Y - popupH - 6 end
+					if y < 8 then y = 8 end
+
+					Shadow.Position = UDim2.new(0, x, 0, y)
+					Shadow.Size = UDim2.new(0, popupW, 0, 0)
+					Shadow.Visible = true
+					PopupGui.Enabled = true
+
+					TweenService:Create(Shadow, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Size = UDim2.new(0, popupW, 0, popupH)
 					}):Play()
+
 					setColor(currentColor, false)
 				else
-					local t = TweenService:Create(PopupHolder, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-						Size = UDim2.new(0, 240, 0, 0)
+					local t = TweenService:Create(Shadow, TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+						Size = UDim2.new(0, 272, 0, 0)
 					})
 					t:Play()
 					t.Completed:Connect(function()
-						PopupHolder.Visible = false
+						if not pickerOpen then
+							PopupGui.Enabled = false
+						end
 					end)
 				end
 			end
@@ -1426,6 +1596,11 @@ function AstralisLib:CreateWindow(config)
 			Preview.MouseButton1Click:Connect(function()
 				playSound()
 				setOpen(not pickerOpen)
+			end)
+
+			PopClose.MouseButton1Click:Connect(function()
+				playSound()
+				setOpen(false)
 			end)
 
 			setColor(currentColor, false)
@@ -1573,7 +1748,7 @@ function AstralisLib:CreateWindow(config)
 			local Track = Instance.new("Frame")
 			Track.Size = UDim2.new(0, 130, 0, 6)
 			Track.AnchorPoint = Vector2.new(1, 0.5)
-				Track.Position = UDim2.new(1, 0, 0.5, 0)
+			Track.Position = UDim2.new(1, 0, 0.5, 0)
 			Track.BackgroundColor3 = Theme.SliderBackground
 			Track.BorderSizePixel = 0
 			Track.ZIndex = 5
@@ -1688,7 +1863,7 @@ function AstralisLib:CreateWindow(config)
 			end)
 		end
 
-		-- Public Tab methods (top-level)
+		-- Public Tab methods
 		function TabObj:CreateToggle(options)
 			return buildToggle(options, function(h)
 				local Holder = Instance.new("Frame")
@@ -1860,12 +2035,15 @@ function AstralisLib:CreateWindow(config)
 		end
 
 		-- ============================================================
-		-- GROUPBOX
+		-- MODERN GROUPBOX
 		-- ============================================================
 		function TabObj:CreateGroupbox(options)
 			options = options or {}
 			local title = options.Title or "Group"
 			local desc = options.Description or ""
+			local icon = options.Icon and getIcon(options.Icon) or nil
+			local collapsible = options.Collapsible ~= false
+			local startOpen = options.Open ~= false
 
 			local Wrapper = Instance.new("Frame")
 			Wrapper.Size = UDim2.new(1, 0, 0, 0)
@@ -1874,45 +2052,89 @@ function AstralisLib:CreateWindow(config)
 			Wrapper.ZIndex = 3
 			Wrapper.Parent = Page
 
+			-- Soft drop shadow
+			local Shadow = Instance.new("ImageLabel")
+			Shadow.Size = UDim2.new(1, 16, 1, 16)
+			Shadow.Position = UDim2.new(0, -8, 0, -6)
+			Shadow.BackgroundTransparency = 1
+			Shadow.Image = "rbxassetid://5028857084"
+			Shadow.ImageColor3 = Color3.new(0, 0, 0)
+			Shadow.ImageTransparency = 0.6
+			Shadow.ScaleType = Enum.ScaleType.Slice
+			Shadow.SliceCenter = Rect.new(24, 24, 276, 276)
+			Shadow.ZIndex = 2
+			Shadow.Parent = Wrapper
+
 			local Card = Instance.new("Frame")
 			Card.Size = UDim2.new(1, 0, 0, 0)
 			Card.AutomaticSize = Enum.AutomaticSize.Y
 			Card.BackgroundColor3 = Theme.HeaderColor
-			Card.BackgroundTransparency = 0.35
+			Card.BackgroundTransparency = 0.15
 			Card.BorderSizePixel = 0
 			Card.ZIndex = 3
 			Card.Parent = Wrapper
-			addCorner(Card, 8)
+			addCorner(Card, 10)
 
 			local CardStroke = Instance.new("UIStroke")
-			CardStroke.Color = Theme.StrokeColor
+			CardStroke.Color = Color3.fromRGB(58, 58, 64)
 			CardStroke.Thickness = 1
-			CardStroke.Transparency = 0.3
+			CardStroke.Transparency = 0.35
 			CardStroke.Parent = Card
 
-			local Header = Instance.new("Frame")
-			Header.Size = UDim2.new(1, 0, 0, desc ~= "" and 40 or 26)
+			-- Top accent strip
+			local AccentStrip = Instance.new("Frame")
+			AccentStrip.Size = UDim2.new(1, -20, 0, 2)
+			AccentStrip.Position = UDim2.new(0, 10, 0, 0)
+			AccentStrip.BackgroundColor3 = Theme.AccentColor
+			AccentStrip.BackgroundTransparency = 0.3
+			AccentStrip.BorderSizePixel = 0
+			AccentStrip.ZIndex = 5
+			AccentStrip.Parent = Card
+			addCorner(AccentStrip, 1)
+
+			local HeaderHeight = desc ~= "" and 46 or 34
+
+			local Header = Instance.new("TextButton")
+			Header.Size = UDim2.new(1, 0, 0, HeaderHeight)
 			Header.BackgroundTransparency = 1
-			Header.ZIndex = 4
+			Header.Text = ""
+			Header.AutoButtonColor = false
+			Header.ZIndex = 6
 			Header.Parent = Card
+			noSelect(Header)
+
+			local IconLabel = nil
+			local titleOffsetX = 14
+
+			if icon then
+				IconLabel = Instance.new("ImageLabel")
+				IconLabel.Size = UDim2.new(0, 16, 0, 16)
+				IconLabel.Position = UDim2.new(0, 14, 0, desc ~= "" and 10 or 9)
+				IconLabel.BackgroundTransparency = 1
+				IconLabel.Image = icon
+				IconLabel.ImageColor3 = Theme.AccentColor
+				IconLabel.ZIndex = 7
+				IconLabel.Parent = Header
+				titleOffsetX = 38
+			end
 
 			local TitleLbl = Instance.new("TextLabel")
-			TitleLbl.Size = UDim2.new(1, -20, 0, 22)
-			TitleLbl.Position = UDim2.new(0, 12, 0, 4)
+			TitleLbl.Size = UDim2.new(1, -(titleOffsetX + (collapsible and 40 or 20)), 0, 20)
+			TitleLbl.Position = UDim2.new(0, titleOffsetX, 0, desc ~= "" and 8 or 7)
 			TitleLbl.BackgroundTransparency = 1
 			TitleLbl.Text = title
 			TitleLbl.Font = Theme.TitleFont
-			TitleLbl.TextSize = 13
-			TitleLbl.TextColor3 = Theme.TextColor
+			TitleLbl.TextSize = 14
+			TitleLbl.TextColor3 = Color3.fromRGB(240, 240, 245)
 			TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 			TitleLbl.TextYAlignment = Enum.TextYAlignment.Center
-			TitleLbl.ZIndex = 5
+			TitleLbl.ZIndex = 7
 			TitleLbl.Parent = Header
 
 			if desc ~= "" then
 				local DescLbl = Instance.new("TextLabel")
-				DescLbl.Size = UDim2.new(1, -20, 0, 14)
-				DescLbl.Position = UDim2.new(0, 12, 0, 24)
+				DescLbl.Size = UDim2.new(1, -(titleOffsetX + 20), 0, 14)
+				DescLbl.Position = UDim2.new(0, titleOffsetX, 0, 26)
 				DescLbl.BackgroundTransparency = 1
 				DescLbl.Text = desc
 				DescLbl.Font = Theme.Font
@@ -1920,45 +2142,133 @@ function AstralisLib:CreateWindow(config)
 				DescLbl.TextColor3 = Theme.DescriptionColor
 				DescLbl.TextXAlignment = Enum.TextXAlignment.Left
 				DescLbl.TextYAlignment = Enum.TextYAlignment.Center
-				DescLbl.ZIndex = 5
+				DescLbl.ZIndex = 7
 				DescLbl.Parent = Header
 			end
 
+			-- Chevron
+			local Chevron = nil
+			if collapsible then
+				Chevron = Instance.new("TextLabel")
+				Chevron.Size = UDim2.new(0, 24, 0, 24)
+				Chevron.Position = UDim2.new(1, -30, 0.5, -12)
+				Chevron.BackgroundTransparency = 1
+				Chevron.Text = "▾"
+				Chevron.Font = Enum.Font.GothamBold
+				Chevron.TextSize = 16
+				Chevron.TextColor3 = Theme.DescriptionColor
+				Chevron.TextXAlignment = Enum.TextXAlignment.Center
+				Chevron.TextYAlignment = Enum.TextYAlignment.Center
+				Chevron.ZIndex = 7
+				Chevron.Parent = Header
+			end
+
 			local Divider = Instance.new("Frame")
-			Divider.Size = UDim2.new(1, -20, 0, 1)
-			Divider.Position = UDim2.new(0, 10, 0, Header.Size.Y.Offset)
-			Divider.BackgroundColor3 = Theme.StrokeColor
-			Divider.BackgroundTransparency = 0.5
+			Divider.Size = UDim2.new(1, -24, 0, 1)
+			Divider.Position = UDim2.new(0, 12, 0, HeaderHeight)
+			Divider.BackgroundColor3 = Color3.fromRGB(50, 50, 56)
+			Divider.BackgroundTransparency = 0.4
 			Divider.BorderSizePixel = 0
-			Divider.ZIndex = 4
+			Divider.ZIndex = 5
 			Divider.Parent = Card
 
 			local Content = Instance.new("Frame")
 			Content.Size = UDim2.new(1, 0, 0, 0)
 			Content.AutomaticSize = Enum.AutomaticSize.Y
-			Content.Position = UDim2.new(0, 0, 0, Header.Size.Y.Offset + 1)
+			Content.Position = UDim2.new(0, 0, 0, HeaderHeight + 1)
 			Content.BackgroundTransparency = 1
+			Content.ClipsDescendants = true
 			Content.ZIndex = 4
 			Content.Parent = Card
 
 			local ContentLayout = Instance.new("UIListLayout")
 			ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			ContentLayout.Padding = UDim.new(0, 6)
+			ContentLayout.Padding = UDim.new(0, 4)
 			ContentLayout.Parent = Content
 
 			local ContentPadding = Instance.new("UIPadding")
 			ContentPadding.PaddingTop = UDim.new(0, 10)
-			ContentPadding.PaddingBottom = UDim.new(0, 10)
+			ContentPadding.PaddingBottom = UDim.new(0, 12)
 			ContentPadding.PaddingLeft = UDim.new(0, 12)
 			ContentPadding.PaddingRight = UDim.new(0, 12)
 			ContentPadding.Parent = Content
 
 			local function syncSize()
-				Card.Size = UDim2.new(1, 0, 0, Header.Size.Y.Offset + 1 + Content.AbsoluteSize.Y)
+				Card.Size = UDim2.new(1, 0, 0, HeaderHeight + 1 + Content.AbsoluteSize.Y)
 			end
 
 			Content:GetPropertyChangedSignal("AbsoluteSize"):Connect(syncSize)
 			task.defer(syncSize)
+
+			local isOpen = startOpen
+
+			local function setOpen(state, animate)
+				isOpen = state
+				if not animate then
+					Content.Visible = state
+					if Chevron then
+						Chevron.Text = state and "▾" or "▸"
+						Chevron.Rotation = 0
+					end
+					Divider.Visible = state
+					syncSize()
+					return
+				end
+
+				if state then
+					Content.Visible = true
+					Divider.Visible = true
+					Content.Size = UDim2.new(1, 0, 0, 0)
+					TweenService:Create(Content, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Size = UDim2.new(1, 0, 0, Content.AbsoluteSize.Y)
+					}):Play()
+					if Chevron then
+						TweenService:Create(Chevron, TweenInfo.new(0.15), {
+							Rotation = 0
+						}):Play()
+					end
+				else
+					if Chevron then
+						TweenService:Create(Chevron, TweenInfo.new(0.15), {
+							Rotation = -90
+						}):Play()
+					end
+					Divider.Visible = false
+					Content.Visible = false
+					syncSize()
+				end
+			end
+
+			if collapsible then
+				Header.MouseButton1Click:Connect(function()
+					playSound()
+					setOpen(not isOpen, true)
+				end)
+				Header.MouseEnter:Connect(function()
+					TweenService:Create(TitleLbl, TweenInfo.new(0.12), {
+						TextColor3 = Color3.fromRGB(255, 255, 255)
+					}):Play()
+					if Chevron then
+						TweenService:Create(Chevron, TweenInfo.new(0.12), {
+							TextColor3 = Color3.fromRGB(200, 200, 210)
+						}):Play()
+					end
+				end)
+				Header.MouseLeave:Connect(function()
+					TweenService:Create(TitleLbl, TweenInfo.new(0.12), {
+						TextColor3 = Color3.fromRGB(240, 240, 245)
+					}):Play()
+					if Chevron then
+						TweenService:Create(Chevron, TweenInfo.new(0.12), {
+							TextColor3 = Theme.DescriptionColor
+						}):Play()
+					end
+				end)
+			end
+
+			if not startOpen then
+				setOpen(false, false)
+			end
 
 			local GroupObj = {}
 
@@ -1993,6 +2303,10 @@ function AstralisLib:CreateWindow(config)
 				Lbl.TextYAlignment = Enum.TextYAlignment.Center
 				Lbl.ZIndex = 5
 				Lbl.Parent = Holder
+			end
+
+			GroupObj.SetOpen = function(_, state)
+				setOpen(state, true)
 			end
 
 			return GroupObj
