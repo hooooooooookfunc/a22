@@ -153,15 +153,15 @@ function AstralisLib:CreateWindow(config)
 
 	addCorner(Frame, Theme.CornerRadius)
 
-	-- Inner gradient for depth
+	-- Subtle inner gradient for depth
 	local FrameGradient = Instance.new("UIGradient")
 	FrameGradient.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 220, 225))
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 205))
 	})
 	FrameGradient.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.98),
-		NumberSequenceKeypoint.new(1, 1)
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(1, 0.92)
 	})
 	FrameGradient.Rotation = 90
 	FrameGradient.Parent = Frame
@@ -198,24 +198,9 @@ function AstralisLib:CreateWindow(config)
 	local FrameStroke = Instance.new("UIStroke")
 	FrameStroke.Color = Theme.OutlineColor
 	FrameStroke.Thickness = Theme.OutlineThickness
-	FrameStroke.Transparency = 0.15
+	FrameStroke.Transparency = 0.35
 	FrameStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	FrameStroke.Parent = Frame
-
-	-- Soft outer drop shadow
-	local FrameShadow = Instance.new("ImageLabel")
-	FrameShadow.Name = "Shadow"
-	FrameShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-	FrameShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-	FrameShadow.Size = UDim2.new(1, 30, 1, 30)
-	FrameShadow.BackgroundTransparency = 1
-	FrameShadow.Image = "rbxassetid://5028857472"
-	FrameShadow.ImageColor3 = Color3.new(0, 0, 0)
-	FrameShadow.ImageTransparency = 0.55
-	FrameShadow.ScaleType = Enum.ScaleType.Slice
-	FrameShadow.SliceCenter = Rect.new(24, 24, 276, 276)
-	FrameShadow.ZIndex = 0
-	FrameShadow.Parent = Frame
 
 	if Theme.BackgroundImage ~= "" then
 		local Background = Instance.new("ImageLabel")
@@ -253,11 +238,11 @@ function AstralisLib:CreateWindow(config)
 	local HeaderGradient = Instance.new("UIGradient")
 	HeaderGradient.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 225, 230))
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 205))
 	})
 	HeaderGradient.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.96),
-		NumberSequenceKeypoint.new(1, 1)
+		NumberSequenceKeypoint.new(0, 0.94),
+		NumberSequenceKeypoint.new(1, 0.88)
 	})
 	HeaderGradient.Rotation = 90
 	HeaderGradient.Parent = HeaderBar
@@ -280,8 +265,8 @@ function AstralisLib:CreateWindow(config)
 
 	-- Left accent bar
 	local AccentBar = Instance.new("Frame")
-	AccentBar.Size = UDim2.new(0, 3, 0, 16)
-	AccentBar.Position = UDim2.new(0, 15, 0.5, -8)
+	AccentBar.Size = UDim2.new(0, 3, 0, 14)
+	AccentBar.Position = UDim2.new(0, 12, 0.5, -7)
 	AccentBar.BackgroundColor3 = Theme.AccentColor
 	AccentBar.BorderSizePixel = 0
 	AccentBar.ZIndex = 6
@@ -290,7 +275,7 @@ function AstralisLib:CreateWindow(config)
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Size = UDim2.new(0, 200, 1, 0)
-	TitleLabel.Position = UDim2.new(0, 24, 0, 0)
+	TitleLabel.Position = UDim2.new(0, 22, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = Theme.Name
 	TitleLabel.TextColor3 = Theme.TitleColor
@@ -303,7 +288,7 @@ function AstralisLib:CreateWindow(config)
 
 	local TitleSub = Instance.new("TextLabel")
 	TitleSub.Size = UDim2.new(0, 200, 1, 0)
-	TitleSub.Position = UDim2.new(0, 24, 0, 0)
+	TitleSub.Position = UDim2.new(0, 22, 0, 0)
 	TitleSub.BackgroundTransparency = 1
 	TitleSub.Text = Theme.Subtitle
 	TitleSub.TextColor3 = Theme.DescriptionColor
@@ -314,12 +299,11 @@ function AstralisLib:CreateWindow(config)
 	TitleSub.ZIndex = 6
 	TitleSub.Parent = HeaderBar
 
-	-- Auto-position subtitle after title text bounds settle
 	task.defer(function()
-		TitleSub.Position = UDim2.new(0, 24 + TitleLabel.TextBounds.X + 8, 0, 0)
+		TitleSub.Position = UDim2.new(0, 22 + TitleLabel.TextBounds.X + 8, 0, 0)
 	end)
 	TitleLabel:GetPropertyChangedSignal("TextBounds"):Connect(function()
-		TitleSub.Position = UDim2.new(0, 24 + TitleLabel.TextBounds.X + 8, 0, 0)
+		TitleSub.Position = UDim2.new(0, 22 + TitleLabel.TextBounds.X + 8, 0, 0)
 	end)
 
 	local SearchBar = Instance.new("Frame")
@@ -778,8 +762,7 @@ function AstralisLib:CreateWindow(config)
 	NoBtn.BorderSizePixel = 0
 	NoBtn.Text = "No"
 	NoBtn.Font = Theme.Font
-	NoBtn.TextSize = 14
-	NoBtn.TextColor3 = Theme.ButtonTextColor
+	NoBtn.TextSize = 14	NoBtn.TextColor3 = Theme.ButtonTextColor
 	NoBtn.TextXAlignment = Enum.TextXAlignment.Center
 	NoBtn.TextYAlignment = Enum.TextYAlignment.Center
 	NoBtn.AutoButtonColor = false
@@ -1295,19 +1278,6 @@ function AstralisLib:CreateWindow(config)
 			Knob.Parent = Track
 
 			addCorner(Knob, 8)
-
-			local KnobShadow = Instance.new("ImageLabel")
-			KnobShadow.Size = UDim2.new(1, 6, 1, 6)
-			KnobShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-			KnobShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-			KnobShadow.BackgroundTransparency = 1
-			KnobShadow.Image = "rbxassetid://5028857472"
-			KnobShadow.ImageColor3 = Color3.new(0, 0, 0)
-			KnobShadow.ImageTransparency = 0.6
-			KnobShadow.ScaleType = Enum.ScaleType.Slice
-			KnobShadow.SliceCenter = Rect.new(24, 24, 276, 276)
-			KnobShadow.ZIndex = 4
-			KnobShadow.Parent = Knob
 
 			local Hit = Instance.new("TextButton")
 			Hit.Size = UDim2.new(1, 0, 1, 0)
