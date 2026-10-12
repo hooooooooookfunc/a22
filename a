@@ -61,7 +61,6 @@ function AstralisLib:CreateWindow(config)
 
 	local Theme = {
 		Name = config.Name or "ASTRALIS",
-		Subtitle = config.Subtitle or "V2.3",
 		Keybind = config.Keybind or Enum.KeyCode.RightControl,
 		SoundEnabled = config.SoundEnabled ~= nil and config.SoundEnabled or true,
 		Font = config.Font or Enum.Font.Gotham,
@@ -126,7 +125,6 @@ function AstralisLib:CreateWindow(config)
 		end)
 	end
 
-	-- Master GUI Containers
 	local MainGui = Instance.new("ScreenGui")
 	MainGui.Name = "AstralisMainGui"
 	MainGui.ResetOnSpawn = false
@@ -156,7 +154,6 @@ function AstralisLib:CreateWindow(config)
 	addCorner(Frame, Theme.CornerRadius)
 	local FrameStroke = addStroke(Frame, Theme.OutlineColor, Theme.OutlineThickness)
 
-	-- Hidden cursor modal unlockers
 	local ModalUnlocker = Instance.new("TextButton")
 	ModalUnlocker.Name = "ModalUnlocker"
 	ModalUnlocker.BackgroundTransparency = 1
@@ -221,23 +218,15 @@ function AstralisLib:CreateWindow(config)
 	HeaderDivider.ZIndex = 5
 	HeaderDivider.Parent = HeaderBar
 
-	local TitleLayout = Instance.new("UIListLayout")
-	TitleLayout.FillDirection = Enum.FillDirection.Horizontal
-	TitleLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	TitleLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	TitleLayout.Padding = UDim.new(0, 6)
-
 	local TitleContainer = Instance.new("Frame")
 	TitleContainer.Size = UDim2.new(0, 200, 1, 0)
 	TitleContainer.Position = UDim2.new(0, 16, 0, 0)
 	TitleContainer.BackgroundTransparency = 1
 	TitleContainer.ZIndex = 6
 	TitleContainer.Parent = HeaderBar
-	TitleLayout.Parent = TitleContainer
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 0, 1, 0)
-	TitleLabel.AutomaticSize = Enum.AutomaticSize.X
+	TitleLabel.Size = UDim2.new(1, 0, 1, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = Theme.Name
 	TitleLabel.TextColor3 = Theme.TitleColor
@@ -247,19 +236,6 @@ function AstralisLib:CreateWindow(config)
 	TitleLabel.TextYAlignment = Enum.TextYAlignment.Center
 	TitleLabel.ZIndex = 6
 	TitleLabel.Parent = TitleContainer
-
-	local SubtitleLabel = Instance.new("TextLabel")
-	SubtitleLabel.Size = UDim2.new(0, 0, 1, 0)
-	SubtitleLabel.AutomaticSize = Enum.AutomaticSize.X
-	SubtitleLabel.BackgroundTransparency = 1
-	SubtitleLabel.Text = Theme.Subtitle
-	SubtitleLabel.TextColor3 = Theme.AccentColor
-	SubtitleLabel.TextSize = 12
-	SubtitleLabel.Font = Theme.Font
-	SubtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	SubtitleLabel.TextYAlignment = Enum.TextYAlignment.Center
-	SubtitleLabel.ZIndex = 6
-	SubtitleLabel.Parent = TitleContainer
 
 	local SearchBar = Instance.new("Frame")
 	SearchBar.Size = UDim2.new(0, 180, 0, 28)
@@ -573,7 +549,6 @@ function AstralisLib:CreateWindow(config)
 		}
 	end
 
-	-- Confirm Dialog setup
 	local ConfirmScreen = Instance.new("ScreenGui")
 	ConfirmScreen.Name = "AstralisConfirmGui"
 	ConfirmScreen.ResetOnSpawn = false
@@ -606,7 +581,6 @@ function AstralisLib:CreateWindow(config)
 	addCorner(ConfirmGui, 10)
 	addStroke(ConfirmGui, Theme.OutlineColor, 1.2)
 
-	-- Focus dialog lock inside Confirm screen
 	local ConfirmModal = Instance.new("TextButton")
 	ConfirmModal.Name = "ConfirmModal"
 	ConfirmModal.BackgroundTransparency = 1
@@ -733,7 +707,6 @@ function AstralisLib:CreateWindow(config)
 		openConfirm()
 	end)
 
-	-- UI Window dragging functionality
 	local dragging = false
 	local dragStart
 	local startPos
@@ -835,7 +808,6 @@ function AstralisLib:CreateWindow(config)
 		end
 	end)
 
-	-- Floatable toggle helper
 	local FloatingBtn = Instance.new("ImageButton")
 	FloatingBtn.Name = "AstralisToggleBtn"
 	FloatingBtn.Size = UDim2.new(0, 44, 0, 44)
@@ -881,10 +853,6 @@ function AstralisLib:CreateWindow(config)
 			)
 		end
 	end)
-
-	local function toggleUI()
-		toggleUI()
-	end
 
 	FloatingBtn.MouseButton1Click:Connect(function()
 		if dragDistance < dragThreshold then
@@ -1451,7 +1419,6 @@ function AstralisLib:CreateWindow(config)
 			local currentColor = default
 			local pickerOpen = false
 
-			-- Inline frame expansion prevents ScrollingFrame clipping issues
 			local Holder = Instance.new("Frame")
 			Holder.Size = UDim2.new(1, 0, 0, 44)
 			Holder.BackgroundColor3 = Theme.SidebarColor
