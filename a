@@ -37,15 +37,12 @@ local ICONS = {
 
 local function getIcon(nameOrId)
 	nameOrId = tostring(nameOrId or "")
-
 	if string.find(nameOrId, "rbxassetid://") then
 		return nameOrId
 	end
-
 	if tonumber(nameOrId) then
 		return "rbxassetid://" .. nameOrId
 	end
-
 	return ICONS[string.lower(nameOrId)] or ICONS.info
 end
 
@@ -59,24 +56,19 @@ function AstralisLib:CreateWindow(config)
 		SoundEnabled = true,
 		Font = config.Font or Enum.Font.Gotham,
 		TitleFont = config.TitleFont or Enum.Font.GothamMedium,
-
 		TitleColor = config.TitleColor or Color3.fromRGB(230, 230, 235),
 		BackgroundColor = config.BackgroundColor or Color3.fromRGB(20, 20, 22),
 		HeaderColor = config.HeaderColor or Color3.fromRGB(26, 26, 28),
-
 		SidebarColor = config.SidebarColor or Color3.fromRGB(24, 24, 26),
 		TabSelectedColor = config.TabSelectedColor or Color3.fromRGB(38, 38, 42),
 		TabTextColor = config.TabTextColor or Color3.fromRGB(150, 150, 160),
 		TabActiveTextColor = config.TabActiveTextColor or Color3.fromRGB(255, 255, 255),
-
 		BackgroundImage = config.BackgroundImage or "",
 		ImageTransparency = config.ImageTransparency or 0.55,
 		ImageColor = config.ImageColor or Color3.fromRGB(140, 140, 140),
 		OverlayColor = config.OverlayColor or Color3.fromRGB(18, 18, 20),
 		OverlayTransparency = config.OverlayTransparency or 1,
-
 		AccentColor = config.AccentColor or Color3.fromRGB(40, 175, 75),
-
 		ToggleOffColor = config.ToggleOffColor or Color3.fromRGB(180, 45, 45),
 		SliderBackground = config.SliderBackground or Color3.fromRGB(28, 28, 32),
 		SliderFillColor = config.SliderFillColor or Color3.fromRGB(55, 55, 60),
@@ -86,11 +78,9 @@ function AstralisLib:CreateWindow(config)
 		TextColor = config.TextColor or Color3.fromRGB(225, 225, 230),
 		DescriptionColor = config.DescriptionColor or Color3.fromRGB(130, 130, 140),
 		StrokeColor = config.StrokeColor or Color3.fromRGB(40, 40, 44),
-
 		OutlineColor = config.OutlineColor or Color3.fromRGB(60, 60, 66),
 		OutlineThickness = config.OutlineThickness or 1.2,
 		CornerRadius = config.CornerRadius or 10,
-
 		TabOutlineColor = config.TabOutlineColor or Color3.fromRGB(255, 255, 255),
 		TabOutlineTransparency = config.TabOutlineTransparency or 0.85,
 		TabOutlineThickness = config.TabOutlineThickness or 1,
@@ -103,7 +93,6 @@ function AstralisLib:CreateWindow(config)
 	local BASE_WIDTH = 720
 	local BASE_HEIGHT = 420
 	local FULL_SIZE = config.Size or UDim2.new(0, BASE_WIDTH, 0, BASE_HEIGHT)
-
 	local MINI_HEIGHT = 56
 	local HEADER_HEIGHT = config.HeaderHeight or 40
 	local SIDEBAR_WIDTH = config.SidebarWidth or 60
@@ -168,10 +157,8 @@ function AstralisLib:CreateWindow(config)
 		if viewport.X > 0 and viewport.Y > 0 then
 			local maxWidth = viewport.X * 0.90
 			local maxHeight = viewport.Y * 0.88
-
 			local scaleX = maxWidth / BASE_WIDTH
 			local scaleY = maxHeight / BASE_HEIGHT
-
 			local finalScale = math.min(scaleX, scaleY, 1)
 			FrameScale.Scale = math.clamp(finalScale, 0.4, 1)
 		end
@@ -254,7 +241,6 @@ function AstralisLib:CreateWindow(config)
 	SearchBar.BorderSizePixel = 0
 	SearchBar.ZIndex = 6
 	SearchBar.Parent = HeaderBar
-
 	addCorner(SearchBar, 6)
 
 	local SearchIcon = Instance.new("ImageLabel")
@@ -295,7 +281,6 @@ function AstralisLib:CreateWindow(config)
 	CloseBtn.AutoButtonColor = false
 	CloseBtn.ZIndex = 6
 	CloseBtn.Parent = HeaderBar
-
 	noSelect(CloseBtn)
 
 	local MinBtn = Instance.new("TextButton")
@@ -311,7 +296,6 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.AutoButtonColor = false
 	MinBtn.ZIndex = 6
 	MinBtn.Parent = HeaderBar
-
 	noSelect(MinBtn)
 
 	CloseBtn.MouseEnter:Connect(function()
@@ -328,15 +312,11 @@ function AstralisLib:CreateWindow(config)
 	end)
 
 	SearchBox.Focused:Connect(function()
-		TweenService:Create(SearchBar, TweenInfo.new(0.12), {
-			BackgroundColor3 = Color3.fromRGB(38, 38, 42)
-		}):Play()
+		TweenService:Create(SearchBar, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(38, 38, 42)}):Play()
 	end)
 
 	SearchBox.FocusLost:Connect(function()
-		TweenService:Create(SearchBar, TweenInfo.new(0.12), {
-			BackgroundColor3 = Color3.fromRGB(32, 32, 36)
-		}):Play()
+		TweenService:Create(SearchBar, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(32, 32, 36)}):Play()
 	end)
 
 	local Body = Instance.new("Frame")
@@ -353,7 +333,6 @@ function AstralisLib:CreateWindow(config)
 	Sidebar.BorderSizePixel = 0
 	Sidebar.ZIndex = 2
 	Sidebar.Parent = Body
-
 	addCorner(Sidebar, Theme.CornerRadius)
 
 	local SidebarTopCover = Instance.new("Frame")
@@ -407,7 +386,6 @@ function AstralisLib:CreateWindow(config)
 
 	local function createNotify(opts)
 		opts = opts or {}
-
 		local title = opts.Title or "Notification"
 		local text = opts.Text or ""
 		local duration = opts.Duration or 4
@@ -417,9 +395,7 @@ function AstralisLib:CreateWindow(config)
 
 		local notifWidth = 230
 		local notifHeight = 68
-		if #buttons > 0 then
-			notifHeight = notifHeight + 40
-		end
+		if #buttons > 0 then notifHeight = notifHeight + 40 end
 
 		local Notif = Instance.new("Frame")
 		Notif.Size = UDim2.new(0, notifWidth, 0, 0)
@@ -427,7 +403,6 @@ function AstralisLib:CreateWindow(config)
 		Notif.BorderSizePixel = 0
 		Notif.ZIndex = 5
 		Notif.Parent = NotifyHolder
-
 		addCorner(Notif, 8)
 
 		local notifStroke = Instance.new("UIStroke")
@@ -475,18 +450,13 @@ function AstralisLib:CreateWindow(config)
 		CloseIcon.Visible = closeBtnEnabled
 		CloseIcon.ZIndex = 7
 		CloseIcon.Parent = Notif
-
 		noSelect(CloseIcon)
 
 		CloseIcon.MouseEnter:Connect(function()
-			TweenService:Create(CloseIcon, TweenInfo.new(0.12), {
-				TextColor3 = Color3.fromRGB(240, 70, 70)
-			}):Play()
+			TweenService:Create(CloseIcon, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(240, 70, 70)}):Play()
 		end)
 		CloseIcon.MouseLeave:Connect(function()
-			TweenService:Create(CloseIcon, TweenInfo.new(0.12), {
-				TextColor3 = Theme.DescriptionColor
-			}):Play()
+			TweenService:Create(CloseIcon, TweenInfo.new(0.12), {TextColor3 = Theme.DescriptionColor}):Play()
 		end)
 
 		if #buttons > 0 then
@@ -518,7 +488,6 @@ function AstralisLib:CreateWindow(config)
 				Btn.LayoutOrder = i
 				Btn.ZIndex = 7
 				Btn.Parent = BtnRow
-
 				addCorner(Btn, 6)
 				noSelect(Btn)
 
@@ -535,20 +504,14 @@ function AstralisLib:CreateWindow(config)
 				end)
 
 				Btn.MouseLeave:Connect(function()
-					TweenService:Create(Btn, TweenInfo.new(0.12), {
-						BackgroundColor3 = origBg
-					}):Play()
+					TweenService:Create(Btn, TweenInfo.new(0.12), {BackgroundColor3 = origBg}):Play()
 				end)
 
 				Btn.MouseButton1Click:Connect(function()
 					playSound()
-					if btnData.Callback then
-						btnData.Callback()
-					end
+					if btnData.Callback then btnData.Callback() end
 					if btnData.CloseOnClick ~= false then
-						if activeNotifs[Notif] then
-							activeNotifs[Notif]()
-						end
+						if activeNotifs[Notif] then activeNotifs[Notif]() end
 					end
 				end)
 			end
@@ -560,17 +523,12 @@ function AstralisLib:CreateWindow(config)
 		closeFn = function()
 			if cancelled then return end
 			cancelled = true
-
 			local tween = TweenService:Create(Notif, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, notifWidth, 0, 0),
 				BackgroundTransparency = 1
 			})
 			tween:Play()
-
-			TweenService:Create(notifStroke, TweenInfo.new(0.25), {
-				Transparency = 1
-			}):Play()
-
+			TweenService:Create(notifStroke, TweenInfo.new(0.25), {Transparency = 1}):Play()
 			tween.Completed:Connect(function()
 				Notif:Destroy()
 				activeNotifs[Notif] = nil
@@ -589,15 +547,10 @@ function AstralisLib:CreateWindow(config)
 		}):Play()
 
 		if duration > 0 then
-			task.delay(duration, function()
-				closeFn()
-			end)
+			task.delay(duration, function() closeFn() end)
 		end
 
-		return {
-			Close = closeFn,
-			Frame = Notif
-		}
+		return { Close = closeFn, Frame = Notif }
 	end
 
 	local ConfirmScreen = Instance.new("ScreenGui")
@@ -628,7 +581,6 @@ function AstralisLib:CreateWindow(config)
 	ConfirmGui.Visible = false
 	ConfirmGui.ZIndex = 2
 	ConfirmGui.Parent = ConfirmScreen
-
 	addCorner(ConfirmGui, 10)
 
 	local ConfirmStroke = Instance.new("UIStroke")
@@ -664,7 +616,6 @@ function AstralisLib:CreateWindow(config)
 	YesBtn.AutoButtonColor = false
 	YesBtn.ZIndex = 3
 	YesBtn.Parent = ConfirmGui
-
 	addCorner(YesBtn, 8)
 	noSelect(YesBtn)
 
@@ -682,7 +633,6 @@ function AstralisLib:CreateWindow(config)
 	NoBtn.AutoButtonColor = false
 	NoBtn.ZIndex = 3
 	NoBtn.Parent = ConfirmGui
-
 	addCorner(NoBtn, 8)
 	noSelect(NoBtn)
 
@@ -692,25 +642,16 @@ function AstralisLib:CreateWindow(config)
 	Blur.Parent = Lighting
 
 	YesBtn.MouseEnter:Connect(function()
-		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
-			BackgroundColor3 = Color3.fromRGB(65, 65, 70)
-		}):Play()
+		TweenService:Create(YesBtn, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(65, 65, 70)}):Play()
 	end)
 	YesBtn.MouseLeave:Connect(function()
-		TweenService:Create(YesBtn, TweenInfo.new(0.12), {
-			BackgroundColor3 = Theme.ButtonBackground
-		}):Play()
+		TweenService:Create(YesBtn, TweenInfo.new(0.12), {BackgroundColor3 = Theme.ButtonBackground}):Play()
 	end)
-
 	NoBtn.MouseEnter:Connect(function()
-		TweenService:Create(NoBtn, TweenInfo.new(0.12), {
-			BackgroundColor3 = Color3.fromRGB(65, 65, 70)
-		}):Play()
+		TweenService:Create(NoBtn, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(65, 65, 70)}):Play()
 	end)
 	NoBtn.MouseLeave:Connect(function()
-		TweenService:Create(NoBtn, TweenInfo.new(0.12), {
-			BackgroundColor3 = Theme.ButtonBackground
-		}):Play()
+		TweenService:Create(NoBtn, TweenInfo.new(0.12), {BackgroundColor3 = Theme.ButtonBackground}):Play()
 	end)
 
 	local function openConfirm()
@@ -718,11 +659,7 @@ function AstralisLib:CreateWindow(config)
 		Dim.Visible = true
 		ConfirmGui.Visible = true
 		Dim.BackgroundTransparency = 1
-
-		TweenService:Create(Dim, TweenInfo.new(0.25), {
-			BackgroundTransparency = 0.5
-		}):Play()
-
+		TweenService:Create(Dim, TweenInfo.new(0.25), {BackgroundTransparency = 0.5}):Play()
 		Blur.Enabled = true
 		Blur.Size = 0
 		TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 14 }):Play()
@@ -730,16 +667,11 @@ function AstralisLib:CreateWindow(config)
 
 	local function closeConfirm()
 		RunService.RenderStepped:Wait()
-
 		local t = TweenService:Create(Dim, TweenInfo.new(0.2), { BackgroundTransparency = 1 })
 		t:Play()
-
 		local b = TweenService:Create(Blur, TweenInfo.new(0.25), { Size = 0 })
 		b:Play()
-		b.Completed:Connect(function()
-			Blur.Enabled = false
-		end)
-
+		b.Completed:Connect(function() Blur.Enabled = false end)
 		t.Completed:Connect(function()
 			Dim.Visible = false
 			ConfirmGui.Visible = false
@@ -813,7 +745,6 @@ function AstralisLib:CreateWindow(config)
 	Tooltip.Visible = false
 	Tooltip.ZIndex = 100
 	Tooltip.Parent = TooltipScreen
-
 	addCorner(Tooltip, 6)
 
 	local tooltipStroke = Instance.new("UIStroke")
@@ -841,7 +772,6 @@ function AstralisLib:CreateWindow(config)
 
 	SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
 		local query = string.lower(SearchBox.Text)
-
 		for _, page in ipairs(Pages) do
 			for _, child in ipairs(page:GetChildren()) do
 				if child:IsA("Frame") then
@@ -862,7 +792,6 @@ function AstralisLib:CreateWindow(config)
 	MinBtn.MouseButton1Click:Connect(function()
 		playSound()
 		uiMinimized = not uiMinimized
-
 		if uiMinimized then
 			Frame.Size = UDim2.new(FULL_SIZE.X.Scale, FULL_SIZE.X.Offset, 0, MINI_HEIGHT)
 			Body.Visible = false
@@ -886,7 +815,6 @@ function AstralisLib:CreateWindow(config)
 	FloatingBtn.ZIndex = 1000000
 	FloatingBtn.Active = true
 	FloatingBtn.Parent = ToggleGui
-
 	noSelect(FloatingBtn)
 
 	local fDragging = false
@@ -926,28 +854,20 @@ function AstralisLib:CreateWindow(config)
 	end
 
 	FloatingBtn.MouseButton1Click:Connect(function()
-		if dragDistance < dragThreshold then
-			toggleUI()
-		end
+		if dragDistance < dragThreshold then toggleUI() end
 	end)
 
 	FloatingBtn.MouseEnter:Connect(function()
-		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {
-			ImageTransparency = 0.25
-		}):Play()
+		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {ImageTransparency = 0.25}):Play()
 	end)
 
 	FloatingBtn.MouseLeave:Connect(function()
-		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {
-			ImageTransparency = 0
-		}):Play()
+		TweenService:Create(FloatingBtn, TweenInfo.new(0.12), {ImageTransparency = 0}):Play()
 	end)
 
 	UserInputService.InputBegan:Connect(function(input)
 		if UserInputService:GetFocusedTextBox() then return end
-		if input.KeyCode == Theme.Keybind then
-			toggleUI()
-		end
+		if input.KeyCode == Theme.Keybind then toggleUI() end
 	end)
 
 	local WindowObj = {}
@@ -955,7 +875,6 @@ function AstralisLib:CreateWindow(config)
 	function WindowObj:CreateTab(tabName, iconName)
 		local tabIndex = #Tabs + 1
 		local yPos = TAB_TOP + ((tabIndex - 1) * (TAB_HEIGHT + TAB_GAP))
-
 		local labelName = tabName or "Tab"
 		local iconKey = iconName or labelName
 		local iconId = getIcon(iconKey)
@@ -970,7 +889,6 @@ function AstralisLib:CreateWindow(config)
 		TabBtn.AutoButtonColor = false
 		TabBtn.ZIndex = 4
 		TabBtn.Parent = Sidebar
-
 		noSelect(TabBtn)
 		addCorner(TabBtn, 8)
 
@@ -1020,19 +938,15 @@ function AstralisLib:CreateWindow(config)
 		local function selectTab()
 			playSound()
 			ActiveTabIndex = tabIndex
-
 			for idx, page in ipairs(Pages) do
 				local active = (idx == tabIndex)
 				page.Visible = active
-
 				TweenService:Create(Tabs[idx].Btn, TweenInfo.new(0.15), {
 					BackgroundTransparency = active and 0.15 or 1
 				}):Play()
-
 				TweenService:Create(Tabs[idx].Icon, TweenInfo.new(0.15), {
 					ImageColor3 = active and Theme.TabActiveTextColor or Theme.TabTextColor
 				}):Play()
-
 				TweenService:Create(Tabs[idx].Outline, TweenInfo.new(0.2), {
 					Transparency = active and Theme.TabOutlineTransparency or 1
 				}):Play()
@@ -1045,17 +959,14 @@ function AstralisLib:CreateWindow(config)
 			TweenService:Create(TabBtn, TweenInfo.new(0.12), {
 				BackgroundTransparency = (ActiveTabIndex == tabIndex) and 0.15 or 0.85
 			}):Play()
-
 			if ActiveTabIndex ~= tabIndex then
 				TweenService:Create(Icon, TweenInfo.new(0.12), {
 					ImageColor3 = Color3.fromRGB(220, 220, 225)
 				}):Play()
 			end
-
 			TooltipText.Text = labelName
 			Tooltip.Size = UDim2.new(0, TooltipText.AbsoluteSize.X + 20, 0, 26)
 			Tooltip.Visible = true
-
 			local pos = TabBtn.AbsolutePosition
 			local sz = TabBtn.AbsoluteSize
 			Tooltip.Position = UDim2.new(0, pos.X + sz.X + 8, 0, pos.Y + (sz.Y / 2) - 13)
@@ -1065,19 +976,15 @@ function AstralisLib:CreateWindow(config)
 			TweenService:Create(TabBtn, TweenInfo.new(0.12), {
 				BackgroundTransparency = (ActiveTabIndex == tabIndex) and 0.15 or 1
 			}):Play()
-
 			if ActiveTabIndex ~= tabIndex then
 				TweenService:Create(Icon, TweenInfo.new(0.12), {
 					ImageColor3 = Theme.TabTextColor
 				}):Play()
 			end
-
 			Tooltip.Visible = false
 		end)
 
-		if tabIndex == 1 then
-			selectTab()
-		end
+		if tabIndex == 1 then selectTab() end
 
 		local TabObj = {}
 
@@ -1101,9 +1008,6 @@ function AstralisLib:CreateWindow(config)
 			Label.Parent = Holder
 		end
 
-		-- ============================================================
-		-- Shared builders
-		-- ============================================================
 		local function buildToggle(options, makeHolder)
 			options = options or {}
 			local name = options.Name or "Toggle"
@@ -1111,7 +1015,7 @@ function AstralisLib:CreateWindow(config)
 			local default = options.Default or false
 			local callback = options.Callback or function() end
 
-			local Holder = makeHolder(desc ~= "" and 42 or 42)
+			local Holder = makeHolder(42)
 
 			local TitleLbl = Instance.new("TextLabel")
 			TitleLbl.Size = UDim2.new(0, 0, 0, 18)
@@ -1150,7 +1054,6 @@ function AstralisLib:CreateWindow(config)
 			Track.BorderSizePixel = 0
 			Track.ZIndex = 4
 			Track.Parent = Holder
-
 			addCorner(Track, 11)
 
 			local Knob = Instance.new("Frame")
@@ -1160,7 +1063,6 @@ function AstralisLib:CreateWindow(config)
 			Knob.BorderSizePixel = 0
 			Knob.ZIndex = 5
 			Knob.Parent = Track
-
 			addCorner(Knob, 8)
 
 			local Hit = Instance.new("TextButton")
@@ -1170,7 +1072,6 @@ function AstralisLib:CreateWindow(config)
 			Hit.AutoButtonColor = false
 			Hit.ZIndex = 10
 			Hit.Parent = Holder
-
 			noSelect(Hit)
 
 			local state = default
@@ -1179,15 +1080,12 @@ function AstralisLib:CreateWindow(config)
 			Hit.MouseButton1Click:Connect(function()
 				playSound()
 				state = not state
-
 				TweenService:Create(Knob, info, {
 					Position = state and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
 				}):Play()
-
 				TweenService:Create(Track, info, {
 					BackgroundColor3 = state and Theme.AccentColor or Color3.fromRGB(28, 28, 32)
 				}):Play()
-
 				callback(state)
 			end)
 		end
@@ -1204,7 +1102,6 @@ function AstralisLib:CreateWindow(config)
 
 			local TitleLbl = Instance.new("TextLabel")
 			TitleLbl.Size = UDim2.new(1, -215, 1, 0)
-			TitleLbl.Position = UDim2.new(0, 0, 0, 0)
 			TitleLbl.BackgroundTransparency = 1
 			TitleLbl.Text = name
 			TitleLbl.Font = Theme.Font
@@ -1236,7 +1133,6 @@ function AstralisLib:CreateWindow(config)
 			Track.BorderSizePixel = 0
 			Track.ZIndex = 4
 			Track.Parent = Holder
-
 			addCorner(Track, 4)
 
 			local pct = math.clamp((default - min) / (max - min), 0, 1)
@@ -1247,7 +1143,6 @@ function AstralisLib:CreateWindow(config)
 			Fill.BorderSizePixel = 0
 			Fill.ZIndex = 5
 			Fill.Parent = Track
-
 			addCorner(Fill, 4)
 
 			local Btn = Instance.new("TextButton")
@@ -1259,7 +1154,6 @@ function AstralisLib:CreateWindow(config)
 			Btn.AutoButtonColor = false
 			Btn.ZIndex = 7
 			Btn.Parent = Track
-
 			noSelect(Btn)
 
 			local sliding = false
@@ -1313,7 +1207,6 @@ function AstralisLib:CreateWindow(config)
 			Btn.AutoButtonColor = false
 			Btn.ZIndex = 4
 			Btn.Parent = Holder
-
 			addCorner(Btn, 4)
 			noSelect(Btn)
 
@@ -1333,32 +1226,24 @@ function AstralisLib:CreateWindow(config)
 			end
 
 			Btn.MouseEnter:Connect(function()
-				TweenService:Create(Btn, TweenInfo.new(0.12), {
-					BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-				}):Play()
+				TweenService:Create(Btn, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}):Play()
 			end)
-
 			Btn.MouseLeave:Connect(function()
-				TweenService:Create(Btn, TweenInfo.new(0.12), {
-					BackgroundColor3 = Theme.ButtonBackground
-				}):Play()
+				TweenService:Create(Btn, TweenInfo.new(0.12), {BackgroundColor3 = Theme.ButtonBackground}):Play()
 			end)
-
 			Btn.MouseButton1Click:Connect(function()
 				playSound()
 				callback()
 			end)
 		end
 
-		-- ============================================================
-		-- Fixed ColorPicker (renders ABOVE the main UI)
-		-- ============================================================
 		local function buildColorPicker(options, makeHolder)
 			options = options or {}
 			local name = options.Name or "Color"
 			local desc = options.Description or ""
 			local default = options.Default or Theme.AccentColor
 			local callback = options.Callback or function() end
+			local alphaEnabled = options.Alpha == true
 			local presets = options.Presets or {
 				Color3.fromRGB(240, 70, 70),
 				Color3.fromRGB(240, 160, 60),
@@ -1371,9 +1256,12 @@ function AstralisLib:CreateWindow(config)
 			}
 
 			local currentColor = default
+			local currentAlpha = options.DefaultAlpha or 1
 			local pickerOpen = false
+			local recentColors = {}
+			local recentAlpha = {}
 
-			local Holder = makeHolder(desc ~= "" and 42 or 42)
+			local Holder = makeHolder(42)
 			Holder.ClipsDescendants = false
 			Holder.ZIndex = 20
 
@@ -1416,7 +1304,6 @@ function AstralisLib:CreateWindow(config)
 			Preview.AutoButtonColor = false
 			Preview.ZIndex = 21
 			Preview.Parent = Holder
-
 			addCorner(Preview, 5)
 			noSelect(Preview)
 
@@ -1425,7 +1312,6 @@ function AstralisLib:CreateWindow(config)
 			PreviewStroke.Thickness = 1
 			PreviewStroke.Parent = Preview
 
-			-- Own ScreenGui, TOP display order so it always renders in front
 			local PopupGui = Instance.new("ScreenGui")
 			PopupGui.Name = "AstralisColorPicker"
 			PopupGui.ResetOnSpawn = false
@@ -1437,13 +1323,12 @@ function AstralisLib:CreateWindow(config)
 			if not PopupGui.Parent then PopupGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 			local Popup = Instance.new("Frame")
-			Popup.Size = UDim2.new(0, 240, 0, 0)
+			Popup.Size = UDim2.new(0, 260, 0, 0)
 			Popup.BackgroundColor3 = Color3.fromRGB(24, 24, 27)
 			Popup.BorderSizePixel = 0
 			Popup.ClipsDescendants = true
 			Popup.ZIndex = 1
 			Popup.Parent = PopupGui
-
 			addCorner(Popup, 8)
 
 			local PopupStroke = Instance.new("UIStroke")
@@ -1451,15 +1336,14 @@ function AstralisLib:CreateWindow(config)
 			PopupStroke.Thickness = 1
 			PopupStroke.Parent = Popup
 
-			-- Header (draggable)
 			local Header = Instance.new("Frame")
-			Header.Size = UDim2.new(1, 0, 0, 28)
+			Header.Size = UDim2.new(1, 0, 0, 30)
 			Header.BackgroundTransparency = 1
 			Header.ZIndex = 2
 			Header.Parent = Popup
 
 			local HeaderLbl = Instance.new("TextLabel")
-			HeaderLbl.Size = UDim2.new(1, -34, 1, 0)
+			HeaderLbl.Size = UDim2.new(1, -60, 1, 0)
 			HeaderLbl.Position = UDim2.new(0, 12, 0, 0)
 			HeaderLbl.BackgroundTransparency = 1
 			HeaderLbl.Text = name
@@ -1471,9 +1355,27 @@ function AstralisLib:CreateWindow(config)
 			HeaderLbl.ZIndex = 3
 			HeaderLbl.Parent = Header
 
+			local EyeBtn = Instance.new("TextButton")
+			EyeBtn.Size = UDim2.new(0, 22, 0, 22)
+			EyeBtn.Position = UDim2.new(1, -58, 0.5, -11)
+			EyeBtn.BackgroundColor3 = Color3.fromRGB(34, 34, 38)
+			EyeBtn.BorderSizePixel = 0
+			EyeBtn.Text = "◉"
+			EyeBtn.Font = Enum.Font.GothamBold
+			EyeBtn.TextSize = 12
+			EyeBtn.TextColor3 = Theme.DescriptionColor
+			EyeBtn.AutoButtonColor = false
+			EyeBtn.ZIndex = 3
+			EyeBtn.Parent = Header
+			addCorner(EyeBtn, 5)
+			noSelect(EyeBtn)
+
+			EyeBtn.MouseEnter:Connect(function() EyeBtn.TextColor3 = Theme.AccentColor end)
+			EyeBtn.MouseLeave:Connect(function() EyeBtn.TextColor3 = Theme.DescriptionColor end)
+
 			local CloseX = Instance.new("TextButton")
 			CloseX.Size = UDim2.new(0, 22, 0, 22)
-			CloseX.Position = UDim2.new(1, -26, 0.5, -11)
+			CloseX.Position = UDim2.new(1, -30, 0.5, -11)
 			CloseX.BackgroundTransparency = 1
 			CloseX.Text = "X"
 			CloseX.Font = Enum.Font.Arcade
@@ -1482,25 +1384,18 @@ function AstralisLib:CreateWindow(config)
 			CloseX.AutoButtonColor = false
 			CloseX.ZIndex = 3
 			CloseX.Parent = Header
-
 			noSelect(CloseX)
 
-			CloseX.MouseEnter:Connect(function()
-				CloseX.TextColor3 = Color3.fromRGB(240, 70, 70)
-			end)
-			CloseX.MouseLeave:Connect(function()
-				CloseX.TextColor3 = Theme.DescriptionColor
-			end)
+			CloseX.MouseEnter:Connect(function() CloseX.TextColor3 = Color3.fromRGB(240, 70, 70) end)
+			CloseX.MouseLeave:Connect(function() CloseX.TextColor3 = Theme.DescriptionColor end)
 
-			-- SV area
 			local SV = Instance.new("Frame")
 			SV.Size = UDim2.new(1, -20, 0, 130)
-			SV.Position = UDim2.new(0, 10, 0, 32)
+			SV.Position = UDim2.new(0, 10, 0, 34)
 			SV.BackgroundColor3 = Color3.fromHSV(0, 1, 1)
 			SV.BorderSizePixel = 0
 			SV.ZIndex = 2
 			SV.Parent = Popup
-
 			addCorner(SV, 5)
 
 			local SVWhite = Instance.new("Frame")
@@ -1509,7 +1404,6 @@ function AstralisLib:CreateWindow(config)
 			SVWhite.BorderSizePixel = 0
 			SVWhite.ZIndex = 3
 			SVWhite.Parent = SV
-
 			addCorner(SVWhite, 5)
 
 			local WG = Instance.new("UIGradient")
@@ -1525,7 +1419,6 @@ function AstralisLib:CreateWindow(config)
 			SVBlack.BorderSizePixel = 0
 			SVBlack.ZIndex = 4
 			SVBlack.Parent = SV
-
 			addCorner(SVBlack, 5)
 
 			local BG = Instance.new("UIGradient")
@@ -1553,15 +1446,13 @@ function AstralisLib:CreateWindow(config)
 			SVInner.Thickness = 1
 			SVInner.Parent = SVMarker
 
-			-- Hue slider
 			local Hue = Instance.new("Frame")
 			Hue.Size = UDim2.new(1, -20, 0, 12)
-			Hue.Position = UDim2.new(0, 10, 0, 168)
+			Hue.Position = UDim2.new(0, 10, 0, 170)
 			Hue.BackgroundColor3 = Color3.new(1, 1, 1)
 			Hue.BorderSizePixel = 0
 			Hue.ZIndex = 2
 			Hue.Parent = Popup
-
 			addCorner(Hue, 6)
 
 			local HG = Instance.new("UIGradient")
@@ -1584,7 +1475,6 @@ function AstralisLib:CreateWindow(config)
 			HueMarker.BorderSizePixel = 0
 			HueMarker.ZIndex = 4
 			HueMarker.Parent = Hue
-
 			addCorner(HueMarker, 2)
 
 			local HueStroke = Instance.new("UIStroke")
@@ -1592,10 +1482,81 @@ function AstralisLib:CreateWindow(config)
 			HueStroke.Thickness = 1
 			HueStroke.Parent = HueMarker
 
-			-- Hex + Reset row
+			local Alpha = nil
+			local AlphaMarker = nil
+			local AlphaFill = nil
+
+			if alphaEnabled then
+				local AlphaChecker = Instance.new("Frame")
+				AlphaChecker.Size = UDim2.new(1, -20, 0, 12)
+				AlphaChecker.Position = UDim2.new(0, 10, 0, 188)
+				AlphaChecker.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+				AlphaChecker.BorderSizePixel = 0
+				AlphaChecker.ZIndex = 2
+				AlphaChecker.Parent = Popup
+				addCorner(AlphaChecker, 6)
+
+				AlphaFill = Instance.new("Frame")
+				AlphaFill.Size = UDim2.new(1, 0, 1, 0)
+				AlphaFill.BackgroundColor3 = currentColor
+				AlphaFill.BorderSizePixel = 0
+				AlphaFill.ZIndex = 3
+				AlphaFill.Parent = AlphaChecker
+				addCorner(AlphaFill, 6)
+
+				Alpha = AlphaChecker
+
+				AlphaMarker = Instance.new("Frame")
+				AlphaMarker.Size = UDim2.new(0, 4, 1, 2)
+				AlphaMarker.AnchorPoint = Vector2.new(0.5, 0.5)
+				AlphaMarker.Position = UDim2.new(1, 0.5, 0)
+				AlphaMarker.BackgroundColor3 = Color3.new(1, 1, 1)
+				AlphaMarker.BorderSizePixel = 0
+				AlphaMarker.ZIndex = 4
+				AlphaMarker.Parent = AlphaChecker
+				addCorner(AlphaMarker, 2)
+
+				local AlphaStroke = Instance.new("UIStroke")
+				AlphaStroke.Color = Color3.new(0, 0, 0)
+				AlphaStroke.Thickness = 1
+				AlphaStroke.Parent = AlphaMarker
+			end
+
+			local baseY = alphaEnabled and 206 or 188
+
+			local RGBRow = Instance.new("Frame")
+			RGBRow.Size = UDim2.new(1, -20, 0, 24)
+			RGBRow.Position = UDim2.new(0, 10, 0, baseY)
+			RGBRow.BackgroundTransparency = 1
+			RGBRow.ZIndex = 2
+			RGBRow.Parent = Popup
+
+			local function makeNumBox(x)
+				local box = Instance.new("TextBox")
+				box.Size = UDim2.new(0, 44, 1, 0)
+				box.Position = UDim2.new(0, x, 0, 0)
+				box.BackgroundColor3 = Color3.fromRGB(34, 34, 38)
+				box.BorderSizePixel = 0
+				box.Text = "0"
+				box.Font = Enum.Font.Code
+				box.TextSize = 11
+				box.TextColor3 = Theme.TextColor
+				box.TextXAlignment = Enum.TextXAlignment.Center
+				box.TextYAlignment = Enum.TextYAlignment.Center
+				box.ClearTextOnFocus = false
+				box.ZIndex = 3
+				box.Parent = RGBRow
+				addCorner(box, 5)
+				return box
+			end
+
+			local RBox = makeNumBox(0)
+			local GBox = makeNumBox(48)
+			local BBox = makeNumBox(96)
+
 			local HexBox = Instance.new("TextBox")
-			HexBox.Size = UDim2.new(0, 92, 0, 22)
-			HexBox.Position = UDim2.new(0, 10, 0, 186)
+			HexBox.Size = UDim2.new(0, 94, 0, 22)
+			HexBox.Position = UDim2.new(1, -114, 0, baseY + 32)
 			HexBox.BackgroundColor3 = Color3.fromRGB(34, 34, 38)
 			HexBox.BorderSizePixel = 0
 			HexBox.Text = "#" .. currentColor:ToHex()
@@ -1607,29 +1568,29 @@ function AstralisLib:CreateWindow(config)
 			HexBox.ClearTextOnFocus = false
 			HexBox.ZIndex = 2
 			HexBox.Parent = Popup
-
 			addCorner(HexBox, 5)
 
-			local ResetBtn = Instance.new("TextButton")
-			ResetBtn.Size = UDim2.new(0, 92, 0, 22)
-			ResetBtn.Position = UDim2.new(1, -102, 0, 186)
-			ResetBtn.BackgroundColor3 = Color3.fromRGB(34, 34, 38)
-			ResetBtn.BorderSizePixel = 0
-			ResetBtn.Text = "Reset"
-			ResetBtn.Font = Theme.Font
-			ResetBtn.TextSize = 12
-			ResetBtn.TextColor3 = Theme.TextColor
-			ResetBtn.AutoButtonColor = false
-			ResetBtn.ZIndex = 2
-			ResetBtn.Parent = Popup
+			local CopyBtn = Instance.new("TextButton")
+			CopyBtn.Size = UDim2.new(0, 58, 0, 22)
+			CopyBtn.Position = UDim2.new(0, 10, 0, baseY + 32)
+			CopyBtn.BackgroundColor3 = Color3.fromRGB(34, 34, 38)
+			CopyBtn.BorderSizePixel = 0
+			CopyBtn.Text = "Copy"
+			CopyBtn.Font = Theme.Font
+			CopyBtn.TextSize = 11
+			CopyBtn.TextColor3 = Theme.TextColor
+			CopyBtn.AutoButtonColor = false
+			CopyBtn.ZIndex = 2
+			CopyBtn.Parent = Popup
+			addCorner(CopyBtn, 5)
+			noSelect(CopyBtn)
 
-			addCorner(ResetBtn, 5)
-			noSelect(ResetBtn)
+			CopyBtn.MouseEnter:Connect(function() CopyBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 50) end)
+			CopyBtn.MouseLeave:Connect(function() CopyBtn.BackgroundColor3 = Color3.fromRGB(34, 34, 38) end)
 
-			-- Presets row
 			local PresetRow = Instance.new("Frame")
 			PresetRow.Size = UDim2.new(1, -20, 0, 18)
-			PresetRow.Position = UDim2.new(0, 10, 0, 214)
+			PresetRow.Position = UDim2.new(0, 10, 0, baseY + 62)
 			PresetRow.BackgroundTransparency = 1
 			PresetRow.ZIndex = 2
 			PresetRow.Parent = Popup
@@ -1640,19 +1601,126 @@ function AstralisLib:CreateWindow(config)
 			PresetLayout.Padding = UDim.new(0, 5)
 			PresetLayout.Parent = PresetRow
 
-			local presetButtons = {}
+			local RecentLabel = Instance.new("TextLabel")
+			RecentLabel.Size = UDim2.new(1, -20, 0, 12)
+			RecentLabel.Position = UDim2.new(0, 10, 0, baseY + 86)
+			RecentLabel.BackgroundTransparency = 1
+			RecentLabel.Text = "RECENT"
+			RecentLabel.Font = Theme.Font
+			RecentLabel.TextSize = 9
+			RecentLabel.TextColor3 = Theme.DescriptionColor
+			RecentLabel.TextXAlignment = Enum.TextXAlignment.Left
+			RecentLabel.ZIndex = 2
+			RecentLabel.Parent = Popup
+
+			local RecentRow = Instance.new("Frame")
+			RecentRow.Size = UDim2.new(1, -20, 0, 18)
+			RecentRow.Position = UDim2.new(0, 10, 0, baseY + 100)
+			RecentRow.BackgroundTransparency = 1
+			RecentRow.ZIndex = 2
+			RecentRow.Parent = Popup
+
+			local RecentLayout = Instance.new("UIListLayout")
+			RecentLayout.FillDirection = Enum.FillDirection.Horizontal
+			RecentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			RecentLayout.Padding = UDim.new(0, 5)
+			RecentLayout.Parent = RecentRow
 
 			local hue, saturation, value = Color3.toHSV(currentColor)
+			local presetButtons = {}
+			local recentButtons = {}
 
-			local function setColor(color, fireCallback)
+			local function hexToColor(hex)
+				hex = hex:gsub("#", ""):gsub("%s+", "")
+				if #hex == 6 and hex:match("^[%x]+$") then
+					local r = tonumber(hex:sub(1, 2), 16)
+					local g = tonumber(hex:sub(3, 4), 16)
+					local b = tonumber(hex:sub(5, 6), 16)
+					if r and g and b then return Color3.fromRGB(r, g, b) end
+				end
+				return nil
+			end
+
+			local function to255(c) return math.floor(c * 255 + 0.5) end
+
+			local function pushRecent(color, alpha)
+				for i = #recentColors, 1, -1 do
+					local rc = recentColors[i]
+					if math.abs(rc.R - color.R) < 0.01
+						and math.abs(rc.G - color.G) < 0.01
+						and math.abs(rc.B - color.B) < 0.01 then
+						table.remove(recentColors, i)
+						table.remove(recentAlpha, i)
+					end
+				end
+				table.insert(recentColors, 1, color)
+				table.insert(recentAlpha, 1, alpha or 1)
+				while #recentColors > 8 do
+					table.remove(recentColors)
+					table.remove(recentAlpha)
+				end
+				for _, rb in ipairs(recentButtons) do rb.btn:Destroy() end
+				recentButtons = {}
+				for i, c in ipairs(recentColors) do
+					local swatch = Instance.new("TextButton")
+					swatch.Size = UDim2.new(0, 18, 0, 18)
+					swatch.BackgroundColor3 = c
+					swatch.BorderSizePixel = 0
+					swatch.Text = ""
+					swatch.AutoButtonColor = false
+					swatch.LayoutOrder = i
+					swatch.ZIndex = 3
+					swatch.Parent = RecentRow
+					addCorner(swatch, 4)
+					noSelect(swatch)
+
+					local sw = Instance.new("UIStroke")
+					sw.Color = Color3.new(1, 1, 1)
+					sw.Thickness = 1
+					sw.Transparency = 0.7
+					sw.Parent = swatch
+
+					table.insert(recentButtons, { btn = swatch, stroke = sw })
+
+					swatch.MouseButton1Click:Connect(function()
+						playSound()
+						setColor(c, recentAlpha[i] or 1, true)
+					end)
+				end
+			end
+
+			local setColor
+
+			setColor = function(color, alpha, fireCallback)
 				color = color or currentColor
 				currentColor = color
+				if alphaEnabled and alpha ~= nil then
+					currentAlpha = math.clamp(alpha, 0, 1)
+				end
 				hue, saturation, value = Color3.toHSV(currentColor)
+
 				Preview.BackgroundColor3 = currentColor
+				Preview.BackgroundTransparency = alphaEnabled and (1 - currentAlpha) or 0
+
 				SV.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
 				SVMarker.Position = UDim2.new(saturation, 0, 1 - value, 0)
 				HueMarker.Position = UDim2.new(hue, 0.5, 0)
-				HexBox.Text = "#" .. currentColor:ToHex()
+
+				if alphaEnabled and AlphaFill then
+					AlphaFill.BackgroundColor3 = currentColor
+				end
+				if alphaEnabled and AlphaMarker then
+					AlphaMarker.Position = UDim2.new(currentAlpha, 0.5, 0)
+				end
+
+				local r = to255(currentColor.R)
+				local g = to255(currentColor.G)
+				local b = to255(currentColor.B)
+
+				if not RBox:IsFocused() then RBox.Text = tostring(r) end
+				if not GBox:IsFocused() then GBox.Text = tostring(g) end
+				if not BBox:IsFocused() then BBox.Text = tostring(b) end
+				if not HexBox:IsFocused() then HexBox.Text = "#" .. currentColor:ToHex() end
 
 				for _, pb in ipairs(presetButtons) do
 					local same = math.abs(pb.color.R - currentColor.R) < 0.01
@@ -1661,7 +1729,10 @@ function AstralisLib:CreateWindow(config)
 					pb.stroke.Transparency = same and 0 or 0.7
 				end
 
-				if fireCallback then callback(currentColor) end
+				if fireCallback then
+					callback(currentColor, currentAlpha)
+					pushRecent(currentColor, currentAlpha)
+				end
 			end
 
 			for i, presetColor in ipairs(presets) do
@@ -1674,7 +1745,6 @@ function AstralisLib:CreateWindow(config)
 				Swatch.LayoutOrder = i
 				Swatch.ZIndex = 3
 				Swatch.Parent = PresetRow
-
 				addCorner(Swatch, 4)
 				noSelect(Swatch)
 
@@ -1688,26 +1758,33 @@ function AstralisLib:CreateWindow(config)
 
 				Swatch.MouseButton1Click:Connect(function()
 					playSound()
-					setColor(presetColor, true)
+					setColor(presetColor, 1, true)
 				end)
 			end
 
-			-- Interaction
 			local svDragging = false
 			local hueDragging = false
+			local alphaDragging = false
+			local eyedropperActive = false
 
 			local function updateFromSV(input)
 				local x = math.clamp((input.Position.X - SV.AbsolutePosition.X) / SV.AbsoluteSize.X, 0, 1)
 				local y = math.clamp((input.Position.Y - SV.AbsolutePosition.Y) / SV.AbsoluteSize.Y, 0, 1)
 				saturation = x
 				value = 1 - y
-				setColor(Color3.fromHSV(hue, saturation, value), true)
+				setColor(Color3.fromHSV(hue, saturation, value), currentAlpha, true)
 			end
 
 			local function updateFromHue(input)
 				local x = math.clamp((input.Position.X - Hue.AbsolutePosition.X) / Hue.AbsoluteSize.X, 0, 1)
 				hue = x
-				setColor(Color3.fromHSV(hue, saturation, value), true)
+				setColor(Color3.fromHSV(hue, saturation, value), currentAlpha, true)
+			end
+
+			local function updateFromAlpha(input)
+				if not Alpha then return end
+				local x = math.clamp((input.Position.X - Alpha.AbsolutePosition.X) / Alpha.AbsoluteSize.X, 0, 1)
+				setColor(currentColor, x, true)
 			end
 
 			SV.InputBegan:Connect(function(input)
@@ -1724,11 +1801,22 @@ function AstralisLib:CreateWindow(config)
 				end
 			end)
 
+			if Alpha then
+				Alpha.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+						alphaDragging = true
+						updateFromAlpha(input)
+					end
+				end)
+			end
+
 			UserInputService.InputChanged:Connect(function(input)
 				if svDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 					updateFromSV(input)
 				elseif hueDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 					updateFromHue(input)
+				elseif alphaDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+					updateFromAlpha(input)
 				end
 			end)
 
@@ -1736,29 +1824,161 @@ function AstralisLib:CreateWindow(config)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 					svDragging = false
 					hueDragging = false
+					alphaDragging = false
 				end
 			end)
+
+			local function clamp255(n)
+				n = tonumber(n) or 0
+				return math.clamp(math.floor(n), 0, 255)
+			end
+
+			local function applyRGB()
+				local r = clamp255(RBox.Text)
+				local g = clamp255(GBox.Text)
+				local b = clamp255(BBox.Text)
+				setColor(Color3.fromRGB(r, g, b), currentAlpha, true)
+			end
+
+			RBox.FocusLost:Connect(applyRGB)
+			GBox.FocusLost:Connect(applyRGB)
+			BBox.FocusLost:Connect(applyRGB)
 
 			HexBox.FocusLost:Connect(function()
-				local hex = HexBox.Text:gsub("#", ""):gsub("%s+", "")
-				if #hex == 6 and hex:match("^[%x]+$") then
-					local r = tonumber(hex:sub(1, 2), 16)
-					local g = tonumber(hex:sub(3, 4), 16)
-					local b = tonumber(hex:sub(5, 6), 16)
-					if r and g and b then
-						setColor(Color3.fromRGB(r, g, b), true)
-						return
-					end
+				local c = hexToColor(HexBox.Text)
+				if c then
+					setColor(c, currentAlpha, true)
+				else
+					HexBox.Text = "#" .. currentColor:ToHex()
 				end
-				HexBox.Text = "#" .. currentColor:ToHex()
 			end)
 
-			ResetBtn.MouseButton1Click:Connect(function()
+			CopyBtn.MouseButton1Click:Connect(function()
 				playSound()
-				setColor(default, true)
+				if setclipboard then
+					setclipboard("#" .. currentColor:ToHex())
+					CopyBtn.Text = "Copied!"
+					task.delay(1, function()
+						if CopyBtn.Parent then CopyBtn.Text = "Copy" end
+					end)
+				end
 			end)
 
-			-- Drag popup by header
+			local EyeGui = nil
+			local EyeOverlay = nil
+
+			local function stopEyedropper()
+				eyedropperActive = false
+				if EyeGui then EyeGui:Destroy() EyeGui = nil end
+				EyeOverlay = nil
+			end
+
+			EyeBtn.MouseButton1Click:Connect(function()
+				if eyedropperActive then
+					stopEyedropper()
+					return
+				end
+
+				eyedropperActive = true
+
+				EyeGui = Instance.new("ScreenGui")
+				EyeGui.Name = "AstralisEyedropper"
+				EyeGui.ResetOnSpawn = false
+				EyeGui.DisplayOrder = 2147483647
+				EyeGui.IgnoreGuiInset = true
+
+				pcall(function() EyeGui.Parent = CoreGui end)
+				if not EyeGui.Parent then EyeGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+				EyeOverlay = Instance.new("TextButton")
+				EyeOverlay.Size = UDim2.new(1, 0, 1, 0)
+				EyeOverlay.BackgroundTransparency = 1
+				EyeOverlay.Text = ""
+				EyeOverlay.AutoButtonColor = false
+				EyeOverlay.ZIndex = 1
+				EyeOverlay.Parent = EyeGui
+
+				local crosshair = Instance.new("Frame")
+				crosshair.Size = UDim2.new(0, 20, 0, 20)
+				crosshair.AnchorPoint = Vector2.new(0.5, 0.5)
+				crosshair.BackgroundTransparency = 1
+				crosshair.ZIndex = 2
+				crosshair.Parent = EyeGui
+
+				local crosshairH = Instance.new("Frame")
+				crosshairH.Size = UDim2.new(1, 0, 0, 1)
+				crosshairH.Position = UDim2.new(0, 0, 0.5, 0)
+				crosshairH.BackgroundColor3 = Color3.new(1, 1, 1)
+				crosshairH.BorderSizePixel = 0
+				crosshairH.ZIndex = 3
+				crosshairH.Parent = crosshair
+
+				local crosshairV = Instance.new("Frame")
+				crosshairV.Size = UDim2.new(0, 1, 1, 0)
+				crosshairV.Position = UDim2.new(0.5, 0, 0, 0)
+				crosshairV.BackgroundColor3 = Color3.new(1, 1, 1)
+				crosshairV.BorderSizePixel = 0
+				crosshairV.ZIndex = 3
+				crosshairV.Parent = crosshair
+
+				local colorPreview = Instance.new("Frame")
+				colorPreview.Size = UDim2.new(0, 40, 0, 40)
+				colorPreview.Position = UDim2.new(0, 20, 0, 20)
+				colorPreview.BackgroundColor3 = currentColor
+				colorPreview.BorderSizePixel = 0
+				colorPreview.ZIndex = 2
+				colorPreview.Parent = EyeGui
+				addCorner(colorPreview, 6)
+
+				local previewStroke = Instance.new("UIStroke")
+				previewStroke.Color = Color3.new(1, 1, 1)
+				previewStroke.Thickness = 2
+				previewStroke.Parent = colorPreview
+
+				local hint = Instance.new("TextLabel")
+				hint.Size = UDim2.new(0, 260, 0, 26)
+				hint.Position = UDim2.new(0.5, -130, 1, -50)
+				hint.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+				hint.BackgroundTransparency = 0.3
+				hint.Text = "Click anywhere to sample  •  Right-click to cancel"
+				hint.Font = Theme.Font
+				hint.TextSize = 12
+				hint.TextColor3 = Color3.new(1, 1, 1)
+				hint.ZIndex = 3
+				hint.Parent = EyeGui
+				addCorner(hint, 4)
+
+				UserInputService.InputChanged:Connect(function(input)
+					if not eyedropperActive then return end
+					if input.UserInputType == Enum.UserInputType.MouseMovement then
+						crosshair.Position = UDim2.new(0, input.Position.X, 0, input.Position.Y)
+						local ray = game.Workspace.CurrentCamera:ViewportPointToRay(input.Position.X, input.Position.Y)
+						local params = RaycastParams.new()
+						params.FilterType = Enum.RaycastFilterType.Exclude
+						params.FilterDescendantsInstances = { LocalPlayer.Character }
+						local result = game.Workspace:Raycast(ray.Origin, ray.Direction * 5000, params)
+						if result and result.Instance then
+							colorPreview.BackgroundColor3 = result.Instance.Color
+						end
+					end
+				end)
+
+				EyeOverlay.MouseButton1Click:Connect(function()
+					local mouseLoc = UserInputService:GetMouseLocation()
+					local ray = game.Workspace.CurrentCamera:ViewportPointToRay(mouseLoc.X, mouseLoc.Y)
+					local params = RaycastParams.new()
+					params.FilterType = Enum.RaycastFilterType.Exclude
+					params.FilterDescendantsInstances = { LocalPlayer.Character }
+					local result = game.Workspace:Raycast(ray.Origin, ray.Direction * 5000, params)
+					if result and result.Instance then
+						setColor(result.Instance.Color, currentAlpha, true)
+					end
+					stopEyedropper()
+				end)
+
+				EyeOverlay.MouseButton2Click:Connect(stopEyedropper)
+			end)
+
 			local dragging = false
 			local dragStart, startPos
 
@@ -1786,8 +2006,7 @@ function AstralisLib:CreateWindow(config)
 				end
 			end)
 
-			-- Open / close
-			local OPEN_HEIGHT = 240
+			local OPEN_HEIGHT = baseY + 128
 
 			local function setOpen(state)
 				pickerOpen = state
@@ -1796,7 +2015,7 @@ function AstralisLib:CreateWindow(config)
 					local absSize = Preview.AbsoluteSize
 					local vp = PopupGui.AbsoluteSize
 
-					local popupW, popupH = 240, OPEN_HEIGHT
+					local popupW, popupH = 260, OPEN_HEIGHT
 					local x = abs.X - popupW + absSize.X
 					local y = abs.Y + absSize.Y + 6
 
@@ -1813,10 +2032,10 @@ function AstralisLib:CreateWindow(config)
 						Size = UDim2.new(0, popupW, 0, popupH)
 					}):Play()
 
-					setColor(currentColor, false)
+					setColor(currentColor, currentAlpha, false)
 				else
 					local t = TweenService:Create(Popup, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-						Size = UDim2.new(0, 240, 0, 0)
+						Size = UDim2.new(0, 260, 0, 0)
 					})
 					t:Play()
 					t.Completed:Connect(function()
@@ -1837,21 +2056,22 @@ function AstralisLib:CreateWindow(config)
 				setOpen(false)
 			end)
 
-			setColor(currentColor, false)
+			setColor(currentColor, currentAlpha, false)
 
 			return {
-				Set = function(_, color)
+				Set = function(_, color, alpha)
 					if typeof(color) == "Color3" then
-						setColor(color, true)
+						setColor(color, alpha, true)
 					end
 				end,
 				Get = function() return currentColor end,
+				GetAlpha = function() return currentAlpha end,
 				Open = function() setOpen(true) end,
-				Close = function() setOpen(false) end
+				Close = function() setOpen(false) end,
+				PushRecent = function(_, color, alpha) pushRecent(color, alpha) end,
 			}
 		end
 
-		-- Public Tab methods
 		function TabObj:CreateToggle(options)
 			return buildToggle(options, function(h)
 				local Holder = Instance.new("Frame")
@@ -1935,7 +2155,6 @@ function AstralisLib:CreateWindow(config)
 			Btn.AutoButtonColor = false
 			Btn.ZIndex = 4
 			Btn.Parent = Holder
-
 			addCorner(Btn, 4)
 			noSelect(Btn)
 
@@ -1952,25 +2171,19 @@ function AstralisLib:CreateWindow(config)
 			Btn.Text = tostring(opts[currentIndex] or "Default")
 
 			Btn.MouseEnter:Connect(function()
-				TweenService:Create(Btn, TweenInfo.new(0.12), {
-					BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-				}):Play()
+				TweenService:Create(Btn, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}):Play()
 			end)
 
 			Btn.MouseLeave:Connect(function()
-				TweenService:Create(Btn, TweenInfo.new(0.12), {
-					BackgroundColor3 = Theme.ButtonBackground
-				}):Play()
+				TweenService:Create(Btn, TweenInfo.new(0.12), {BackgroundColor3 = Theme.ButtonBackground}):Play()
 			end)
 
 			Btn.MouseButton1Click:Connect(function()
 				playSound()
 				if type(list) == "function" then opts = list() end
 				if #opts == 0 then return end
-
 				currentIndex = currentIndex + 1
 				if currentIndex > #opts then currentIndex = 1 end
-
 				local val = opts[currentIndex]
 				Btn.Text = tostring(val)
 				callback(val)
@@ -2013,7 +2226,6 @@ function AstralisLib:CreateWindow(config)
 			Box.Text = tostring(default)
 			Box.ClearTextOnFocus = false
 			Box.Parent = Holder
-
 			addCorner(Box, 4)
 
 			Box.FocusLost:Connect(function()
@@ -2022,9 +2234,6 @@ function AstralisLib:CreateWindow(config)
 			end)
 		end
 
-		-- ============================================================
-		-- Groupbox — matches the existing UI style
-		-- ============================================================
 		function TabObj:CreateGroupbox(options)
 			options = options or {}
 			local title = options.Title or "Group"
@@ -2044,7 +2253,6 @@ function AstralisLib:CreateWindow(config)
 			Card.BorderSizePixel = 0
 			Card.ZIndex = 3
 			Card.Parent = Wrapper
-
 			addCorner(Card, Theme.CornerRadius)
 
 			local CardStroke = Instance.new("UIStroke")
